@@ -590,36 +590,36 @@
                         <!-- Calculated Thresholds -->
                         <div class="grid grid-cols-2 gap-6 mb-6">
                             <div class="section-box bg-teal-50 border-teal-200">
-                                <h3 class="text-teal-800 mb-2">Lactate Threshold 1 (LT1)</h3>
+                                <h3 class="text-teal-800 mb-2 font-bold">Lactate Threshold 1 (LT1)</h3>
                                 <div class="grid grid-cols-3 gap-2 text-center">
                                     <div>
                                         <p class="meta-label">HR</p>
-                                        <p id="print_lt1_hr" class="text-lg font-bold">-</p>
+                                        <p id="print_lt1_hr" class="text-lg font-bold text-gray-900">-</p>
                                     </div>
                                     <div>
                                         <p class="meta-label">Speed</p>
-                                        <p id="print_lt1_speed" class="text-lg font-bold">-</p>
+                                        <p id="print_lt1_speed" class="text-lg font-bold text-gray-900">-</p>
                                     </div>
                                     <div>
                                         <p class="meta-label">Lactate</p>
-                                        <p id="print_lt1_lactate" class="text-lg font-bold">-</p>
+                                        <p id="print_lt1_lactate" class="text-lg font-bold text-gray-900">-</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="section-box bg-red-50 border-red-200">
-                                <h3 class="text-red-800 mb-2">Lactate Threshold 2 (LT2)</h3>
+                                <h3 class="text-red-800 mb-2 font-bold">Lactate Threshold 2 (LT2)</h3>
                                 <div class="grid grid-cols-3 gap-2 text-center">
                                     <div>
                                         <p class="meta-label">HR</p>
-                                        <p id="print_lt2_hr" class="text-lg font-bold">-</p>
+                                        <p id="print_lt2_hr" class="text-lg font-bold text-gray-900">-</p>
                                     </div>
                                     <div>
                                         <p class="meta-label">Speed</p>
-                                        <p id="print_lt2_speed" class="text-lg font-bold">-</p>
+                                        <p id="print_lt2_speed" class="text-lg font-bold text-gray-900">-</p>
                                     </div>
                                     <div>
                                         <p class="meta-label">Lactate</p>
-                                        <p id="print_lt2_lactate" class="text-lg font-bold">-</p>
+                                        <p id="print_lt2_lactate" class="text-lg font-bold text-gray-900">-</p>
                                     </div>
                                 </div>
                             </div>
@@ -630,16 +630,16 @@
                             <h3 class="mb-4">Key Lactate Points</h3>
                             <div class="grid grid-cols-3 gap-4 text-center">
                                 <div>
-                                    <h4 class="font-bold">2.0 mmol/L</h4>
-                                    <p id="print_2mmol" class="text-sm mt-1">-</p>
+                                    <h4 class="font-bold text-gray-900">2.0 mmol/L</h4>
+                                    <p id="print_2mmol" class="text-sm mt-1 text-gray-800">-</p>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold">4.0 mmol/L</h4>
-                                    <p id="print_4mmol" class="text-sm mt-1">-</p>
+                                    <h4 class="font-bold text-gray-900">4.0 mmol/L</h4>
+                                    <p id="print_4mmol" class="text-sm mt-1 text-gray-800">-</p>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold">6.0 mmol/L</h4>
-                                    <p id="print_6mmol" class="text-sm mt-1">-</p>
+                                    <h4 class="font-bold text-gray-900">6.0 mmol/L</h4>
+                                    <p id="print_6mmol" class="text-sm mt-1 text-gray-800">-</p>
                                 </div>
                             </div>
                         </div>
@@ -1118,8 +1118,27 @@
                 const zonesTable = document.querySelector('#trainingZones table').cloneNode(true);
                 zonesTable.classList.remove('text-center', 'text-sm');
                 zonesTable.classList.add('text-xs');
-                zonesTable.querySelectorAll('.text-white').forEach(el => { el.classList.remove('text-white'); el.classList.add('text-black'); });
-                zonesTable.querySelectorAll('thead').forEach(el => { el.classList.remove('bg-gray-900', 'text-white'); el.classList.add('bg-gray-200', 'text-black'); });
+
+                // Fix Header Styling for Print
+                zonesTable.querySelectorAll('thead').forEach(el => {
+                    el.classList.remove('bg-gray-900', 'text-white');
+                    el.classList.add('bg-gray-200', 'text-black');
+                });
+
+                // Fix Cell Styling: ONLY remove text-white from specific non-colored cells if needed, 
+                // but actually we want to KEEP white text on dark backgrounds (Zones 3-8).
+                // We ONLY want to ensure text is black on light backgrounds (Zones 1-2).
+                // The original code has text-gray-900 for Light/Moderate (Zones 1-2), which is fine.
+                // It has text-white for Heavy/Severe/Extreme (Zones 3-8), which is also fine for print IF background prints.
+                // Note: accurate-print-mode usually requires 'background-graphics' enabled in print dialog, 
+                // but html2canvas captures what it sees.
+
+                // However, let's ensure the "Domain" column (rowspan) is readable. 
+                // It usually has bg-white text-gray-900.
+
+                // Let's just ensure headers are black (done above) and remove 'text-white' ONLY from things that shouldn't be white.
+                // Actually, the previous code stripped ALL text-white. We will remove that strip loop.
+
                 document.getElementById('print_zonesTableContainer').innerHTML = '';
                 document.getElementById('print_zonesTableContainer').appendChild(zonesTable);
 
