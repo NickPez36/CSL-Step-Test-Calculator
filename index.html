@@ -875,7 +875,7 @@
                 document.getElementById('trainingZones').classList.remove('hidden');
 
                 // Add this line to show export btn
-                document.getElementById('exportPdfBtn').classList.remove('hidden');
+                document.getElementById('previewReportBtn').classList.remove('hidden');
 
                 lastCalculationData = { parsedData, efficiencyData, regressions: { lactate: speedLactateRegression, hr: speedHrRegression, sr: speedSrRegression }, thresholds: { lt1: { speed: lt1Speed, lactate: lt1Lactate }, lt2: lt2Point, modDmaxLine: { start: modStartPoint, end: endPoint } } };
                 displayResults({ lt1: { hr: lt1Hr.toFixed(0), speed: lt1Speed.toFixed(2), lactate: lt1Lactate.toFixed(2) }, lt2: { hr: lt2Hr.toFixed(0), speed: lt2Point.speed.toFixed(2), lactate: lt2Point.lactate.toFixed(2) } });
