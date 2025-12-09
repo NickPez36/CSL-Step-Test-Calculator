@@ -1122,17 +1122,19 @@
                 document.getElementById('print_efficiencyTableContainer').appendChild(effTable);
 
 
-                // 3. Render Charts (Light Mode)
+                // 3. Prepare for PDF Generation
+                // We must show the element so charts can render (Chart.js needs dimensions)
+                const element = document.getElementById('printableReport');
+                element.classList.remove('hidden');
+                // Use absolute positioning to keep it out of view but renderable
+                element.style.position = 'absolute';
+                element.style.left = '-10000px';
+                element.style.top = '0';
+
+                // 4. Render Charts (Light Mode) - Now that container is "visible"
                 await renderPrintCharts();
 
-                // 4. Generate PDF
-                const element = document.getElementById('printableReport');
-                element.classList.remove('hidden'); // Show briefly (sometimes needed for render) OR pass element directly works usually even if hidden? 
-                // html2pdf usually needs it visible in DOM or at least rendered.
-                // Better approach: Clone it off-screen or allow it to be visible but absolutely positioned off-screen?
-                // Let's try visible but z-index behind? Or just block overlay.
-                // For now, let's just make it visible, generate, hide.
-
+                // 5. Generate PDF
                 const opt = {
                     margin: 10,
                     filename: `Report_${document.getElementById('athleteName').value || 'Athlete'}_${new Date().toISOString().split('T')[0]}.pdf`,
@@ -1143,7 +1145,11 @@
 
                 await html2pdf().set(opt).from(element).save();
 
+                // Cleanup
                 element.classList.add('hidden');
+                element.style.position = '';
+                element.style.left = '';
+                element.style.top = '';
 
             } catch (e) {
                 console.error(e);
