@@ -6,6 +6,9 @@ import {
     PointElement,
     LineElement,
     BarElement,
+    LineController,
+    BarController,
+    ScatterController,
     Title,
     Tooltip,
     Legend,
@@ -14,13 +17,16 @@ import type { ChartOptions } from 'chart.js';
 import { Scatter, Bar } from 'react-chartjs-2';
 import type { CalculationResult } from '../types';
 
-// Register Chart.js components
+// Register Chart.js components (including controllers for production builds)
 ChartJS.register(
     CategoryScale,
     LinearScale,
     PointElement,
     LineElement,
     BarElement,
+    LineController,
+    BarController,
+    ScatterController,
     Title,
     Tooltip,
     Legend
