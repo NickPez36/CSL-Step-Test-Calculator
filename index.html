@@ -1194,14 +1194,19 @@
             });
 
             // 4. Efficiency
-            new Chart(document.getElementById('print_efficiencyChart').getContext('2d'), {
-                type: 'bar',
-                data: {
-                    labels: parsedData.map(d => d.speed.toFixed(2)),
-                    datasets: [{ label: 'Efficiency', data: efficiencyData.map(d => d.efficiency), backgroundColor: 'rgba(59, 130, 246, 0.5)', borderColor: 'blue', borderWidth: 1 }]
-                },
-                options: { ...getChartOptionsLight('Efficiency Score'), scales: { x: { ...getChartOptionsLight().scales.x, type: 'category' } } }
-            });
+            if (efficiencyData) {
+                new Chart(document.getElementById('print_efficiencyChart').getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: parsedData.map(d => d.speed.toFixed(2)),
+                        datasets: [{ label: 'Efficiency', data: efficiencyData.map(d => d.efficiency), backgroundColor: 'rgba(59, 130, 246, 0.5)', borderColor: 'blue', borderWidth: 1 }]
+                    },
+                    options: { ...getChartOptionsLight('Efficiency Score'), scales: { x: { ...getChartOptionsLight().scales.x, type: 'category' } } }
+                });
+            } else {
+                // Render empty or placeholder if no data?
+                // Or just leave blank canvas
+            }
 
             // Wait a moment for charts to render
             await new Promise(r => setTimeout(r, 500));
