@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,27 +16,36 @@
         body {
             font-family: 'Inter', sans-serif;
         }
+
         /* Style for table inputs in dark mode */
         #dataTable input {
             width: 100%;
             padding: 0.5rem;
-            border: 1px solid #4b5563; /* gray-600 */
+            border: 1px solid #4b5563;
+            /* gray-600 */
             border-radius: 0.375rem;
             text-align: center;
-            background-color: #374151; /* gray-700 */
-            color: #f3f4f6; /* gray-100 */
+            background-color: #374151;
+            /* gray-700 */
+            color: #f3f4f6;
+            /* gray-100 */
         }
-         #dataTable input:focus {
+
+        #dataTable input:focus {
             outline: 2px solid #3b82f6;
             outline-offset: -1px;
             border-color: #3b82f6;
         }
+
         #dataTable input.bg-gray-100 {
-             background-color: #4b5563 !important; /* gray-600 */
+            background-color: #4b5563 !important;
+            /* gray-600 */
         }
+
         .toggle-btn {
             transition: all 0.2s ease-in-out;
         }
+
         .toggle-btn-active {
             background-color: #3b82f6;
             color: white;
@@ -43,6 +53,7 @@
         }
     </style>
 </head>
+
 <body class="bg-gray-900 text-gray-200">
 
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
@@ -54,17 +65,21 @@
         <!-- Input Data Section -->
         <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
             <h2 class="text-2xl font-semibold mb-2 text-white">1. Input Data</h2>
-            
+
             <div class="mb-4">
                 <label class="font-semibold text-gray-300">Protocol Type:</label>
                 <div id="tableTypeToggle" class="mt-2 flex bg-gray-700 rounded-lg p-1 max-w-md">
-                    <button data-type="hr" class="toggle-btn toggle-btn-active flex-1 py-1 px-2 text-sm rounded-md">HR Based</button>
-                    <button data-type="speed" class="toggle-btn flex-1 py-1 px-2 text-sm rounded-md">Speed Based</button>
-                    <button data-type="sr" class="toggle-btn flex-1 py-1 px-2 text-sm rounded-md">Stroke Rate Based</button>
+                    <button data-type="hr" class="toggle-btn toggle-btn-active flex-1 py-1 px-2 text-sm rounded-md">HR
+                        Based</button>
+                    <button data-type="speed" class="toggle-btn flex-1 py-1 px-2 text-sm rounded-md">Speed
+                        Based</button>
+                    <button data-type="sr" class="toggle-btn flex-1 py-1 px-2 text-sm rounded-md">Stroke Rate
+                        Based</button>
                 </div>
             </div>
 
-            <p class="text-sm text-gray-400 mb-4">You can navigate the table with arrow keys and paste data from a spreadsheet.</p>
+            <p class="text-sm text-gray-400 mb-4">You can navigate the table with arrow keys and paste data from a
+                spreadsheet.</p>
             <div class="overflow-x-auto">
                 <table id="dataTable" class="min-w-full text-sm">
                     <thead class="bg-gray-700">
@@ -78,37 +93,48 @@
                 </table>
             </div>
             <div class="flex space-x-2 mt-4">
-                <button id="addRowBtn" class="bg-gray-600 text-gray-200 font-semibold py-2 px-4 rounded-lg hover:bg-gray-500 transition-all duration-300 text-xs">Add Row</button>
-                <button id="removeRowBtn" class="bg-gray-600 text-gray-200 font-semibold py-2 px-4 rounded-lg hover:bg-gray-500 transition-all duration-300 text-xs">Remove Last Row</button>
+                <button id="addRowBtn"
+                    class="bg-gray-600 text-gray-200 font-semibold py-2 px-4 rounded-lg hover:bg-gray-500 transition-all duration-300 text-xs">Add
+                    Row</button>
+                <button id="removeRowBtn"
+                    class="bg-gray-600 text-gray-200 font-semibold py-2 px-4 rounded-lg hover:bg-gray-500 transition-all duration-300 text-xs">Remove
+                    Last Row</button>
             </div>
 
-            <button id="calculateBtn" class="mt-6 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            <button id="calculateBtn"
+                class="mt-6 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                 Calculate Thresholds & Efficiency
             </button>
-             <div id="error" class="mt-4 text-red-400 font-medium hidden"></div>
+            <div id="error" class="mt-4 text-red-400 font-medium hidden"></div>
         </div>
 
         <!-- Charts Section -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            <!-- Lactate Curve Chart -->
+            <!-- 1. Speed vs Lactate -->
             <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
-                 <h2 class="text-2xl font-semibold mb-4 text-white">Lactate Curve Visualization</h2>
-                <div class="mb-4">
-                     <div id="chartViewToggle" class="mt-2 flex bg-gray-700 rounded-lg p-1">
-                        <button data-type="lactate" class="toggle-btn toggle-btn-active flex-1 py-1 px-2 text-sm rounded-md">Speed vs Lactate</button>
-                        <button data-type="hr" class="toggle-btn flex-1 py-1 px-2 text-sm rounded-md">Speed vs HR</button>
-                        <button data-type="sr" class="toggle-btn flex-1 py-1 px-2 text-sm rounded-md">Speed vs Stroke Rate</button>
-                    </div>
-                </div>
-                <div class="relative h-[400px]">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Speed vs Lactate</h2>
+                <div class="relative h-[350px]">
                     <canvas id="lactateChart"></canvas>
                 </div>
             </div>
-            <!-- Efficiency Chart -->
-             <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+            <!-- 2. Speed vs HR -->
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Speed vs Heart Rate</h2>
+                <div class="relative h-[350px]">
+                    <canvas id="hrChart"></canvas>
+                </div>
+            </div>
+            <!-- 3. Speed vs Stroke Rate -->
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Speed vs Stroke Rate</h2>
+                <div class="relative h-[350px]">
+                    <canvas id="srChart"></canvas>
+                </div>
+            </div>
+            <!-- 4. Step Efficiency Chart -->
+            <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
                 <h2 class="text-2xl font-semibold mb-4 text-white">Step Efficiency Chart</h2>
-                 <p class="text-sm text-gray-400 mb-12">Efficiency score vs. speed for each step of the test.</p>
-                <div class="relative h-[400px]">
+                <div class="relative h-[350px]">
                     <canvas id="efficiencyChart"></canvas>
                 </div>
             </div>
@@ -116,50 +142,89 @@
 
         <!-- Results Section -->
         <div id="results" class="hidden">
-             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                 <!-- Calculated Thresholds -->
-                 <div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <!-- Calculated Thresholds -->
+                <div>
                     <h2 class="text-2xl font-semibold mb-4 text-white">2. Calculated Thresholds</h2>
                     <div class="space-y-6">
                         <div class="bg-gray-800 p-4 border border-gray-700 rounded-xl">
                             <h3 class="font-bold text-lg text-teal-400">Lactate Threshold 1 (LT1)</h3>
-                            <p class="text-sm text-gray-400 mb-2">Calculated using the Lowest Lactate + 0.4 mmol/L method.</p>
+                            <p class="text-sm text-gray-400 mb-2">Calculated using the Lowest Lactate + 0.4 mmol/L
+                                method.</p>
                             <div class="grid grid-cols-3 gap-2 text-center">
-                                <div><p class="text-sm font-medium text-gray-400">Heart Rate</p><p id="lt1_hr" class="text-xl font-semibold">-</p></div>
-                                <div><p class="text-sm font-medium text-gray-400">Speed (m/s)</p><p id="lt1_speed" class="text-xl font-semibold">-</p></div>
-                                <div><p class="text-sm font-medium text-gray-400">Lactate (mmol/L)</p><p id="lt1_lactate" class="text-xl font-semibold">-</p></div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Heart Rate</p>
+                                    <p id="lt1_hr" class="text-xl font-semibold">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Speed (m/s)</p>
+                                    <p id="lt1_speed" class="text-xl font-semibold">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Lactate (mmol/L)</p>
+                                    <p id="lt1_lactate" class="text-xl font-semibold">-</p>
+                                </div>
                             </div>
                         </div>
                         <div class="bg-gray-800 p-4 border border-gray-700 rounded-xl">
                             <h3 class="font-bold text-lg text-red-400">Lactate Threshold 2 (LT2)</h3>
-                            <p class="text-sm text-gray-400 mb-2">Calculated using the Modified DMax method (Bishop et al., 1998).</p>
-                             <div class="grid grid-cols-3 gap-2 text-center">
-                                <div><p class="text-sm font-medium text-gray-400">Heart Rate</p><p id="lt2_hr" class="text-xl font-semibold">-</p></div>
-                                <div><p class="text-sm font-medium text-gray-400">Speed (m/s)</p><p id="lt2_speed" class="text-xl font-semibold">-</p></div>
-                                <div><p class="text-sm font-medium text-gray-400">Lactate (mmol/L)</p><p id="lt2_lactate" class="text-xl font-semibold">-</p></div>
+                            <p class="text-sm text-gray-400 mb-2">Calculated using the Modified DMax method (Bishop et
+                                al., 1998).</p>
+                            <div class="grid grid-cols-3 gap-2 text-center">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Heart Rate</p>
+                                    <p id="lt2_hr" class="text-xl font-semibold">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Speed (m/s)</p>
+                                    <p id="lt2_speed" class="text-xl font-semibold">-</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-medium text-gray-400">Lactate (mmol/L)</p>
+                                    <p id="lt2_lactate" class="text-xl font-semibold">-</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                 </div>
-                 <!-- Key Lactate Points -->
+                </div>
+                <!-- Key Lactate Points -->
                 <div>
                     <h2 class="text-2xl font-semibold mb-4 text-white">3. Key Lactate Points</h2>
-                    <p class="text-sm text-gray-400 mb-4">Speed and Heart Rate values interpolated from the curve at fixed lactate levels.</p>
+                    <p class="text-sm text-gray-400 mb-4">Speed and Heart Rate values interpolated from the curve at
+                        fixed lactate levels.</p>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
                         <div class="bg-gray-800 p-4 border border-gray-700 rounded-xl">
                             <h4 class="font-bold text-lg text-gray-300">2.0 mmol/L</h4>
-                            <div class="mt-2"><p class="text-sm font-medium text-gray-400">Heart Rate</p><p id="hr_2mmol" class="text-xl font-semibold">-</p></div>
-                            <div class="mt-2"><p class="text-sm font-medium text-gray-400">Speed (m/s)</p><p id="speed_2mmol" class="text-xl font-semibold">-</p></div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-400">Heart Rate</p>
+                                <p id="hr_2mmol" class="text-xl font-semibold">-</p>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-400">Speed (m/s)</p>
+                                <p id="speed_2mmol" class="text-xl font-semibold">-</p>
+                            </div>
                         </div>
                         <div class="bg-gray-800 p-4 border border-gray-700 rounded-xl">
                             <h4 class="font-bold text-lg text-gray-300">4.0 mmol/L</h4>
-                            <div class="mt-2"><p class="text-sm font-medium text-gray-400">Heart Rate</p><p id="hr_4mmol" class="text-xl font-semibold">-</p></div>
-                            <div class="mt-2"><p class="text-sm font-medium text-gray-400">Speed (m/s)</p><p id="speed_4mmol" class="text-xl font-semibold">-</p></div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-400">Heart Rate</p>
+                                <p id="hr_4mmol" class="text-xl font-semibold">-</p>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-400">Speed (m/s)</p>
+                                <p id="speed_4mmol" class="text-xl font-semibold">-</p>
+                            </div>
                         </div>
                         <div class="bg-gray-800 p-4 border border-gray-700 rounded-xl">
                             <h4 class="font-bold text-lg text-gray-300">6.0 mmol/L</h4>
-                            <div class="mt-2"><p class="text-sm font-medium text-gray-400">Heart Rate</p><p id="hr_6mmol" class="text-xl font-semibold">-</p></div>
-                             <div class="mt-2"><p class="text-sm font-medium text-gray-400">Speed (m/s)</p><p id="speed_6mmol" class="text-xl font-semibold">-</p></div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-400">Heart Rate</p>
+                                <p id="hr_6mmol" class="text-xl font-semibold">-</p>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm font-medium text-gray-400">Speed (m/s)</p>
+                                <p id="speed_6mmol" class="text-xl font-semibold">-</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -196,12 +261,12 @@
         const efficiencyResultsDiv = document.getElementById('efficiencyResults');
         const tableHeaderRow = document.getElementById('tableHeaderRow');
         const tableTypeToggleContainer = document.getElementById('tableTypeToggle');
-        const chartViewToggleContainer = document.getElementById('chartViewToggle');
-        
+
         let lactateChart = null;
         let efficiencyChart = null;
+        let hrChart = null;
+        let srChart = null;
         let currentTableType = 'hr';
-        let currentChartType = 'lactate';
         let lastCalculationData = null;
 
         const tableConfigs = {
@@ -234,7 +299,7 @@
             row.innerHTML = cells;
             dataBody.appendChild(row);
         }
-        
+
         function updateMaxRow() {
             const rowCount = dataBody.rows.length;
             if (rowCount === 0) return;
@@ -274,14 +339,7 @@
             }
         });
 
-        chartViewToggleContainer.addEventListener('click', (e) => {
-            if (e.target.tagName === 'BUTTON' && !e.target.disabled) {
-                chartViewToggleContainer.querySelector('.toggle-btn-active').classList.remove('toggle-btn-active');
-                e.target.classList.add('toggle-btn-active');
-                currentChartType = e.target.dataset.type;
-                renderChart();
-            }
-        });
+
 
         addRowBtn.addEventListener('click', () => {
             createRow(dataBody.rows.length + 1);
@@ -328,13 +386,13 @@
                         const targetRow = dataBody.rows[targetRowIndex];
                         if (targetCellIndex < targetRow.cells.length) {
                             const input = targetRow.cells[targetCellIndex].querySelector('input');
-                            if(input && !input.readOnly) input.value = cellText;
+                            if (input && !input.readOnly) input.value = cellText;
                         }
                     });
                 }
             });
         });
-        
+
         calculateBtn.addEventListener('click', () => {
             try {
                 const parsedData = [];
@@ -355,35 +413,35 @@
                 const speedLactateRegression = regression.polynomial(parsedData.map(d => [d.speed, d.lactate]), { order: 3 });
                 const speedHrRegression = regression.polynomial(parsedData.map(d => [d.speed, d.hr]), { order: 3 });
                 let speedSrRegression = null;
-                if(hasSrData){ speedSrRegression = regression.polynomial(parsedData.map(d => [d.speed, d.sr]), { order: 3 }); }
+                if (hasSrData) { speedSrRegression = regression.polynomial(parsedData.map(d => [d.speed, d.sr]), { order: 3 }); }
 
                 const minLactatePoint = parsedData.reduce((min, p) => p.lactate < min.lactate ? p : min, parsedData[0]);
                 const lt1Lactate = minLactatePoint.lactate + 0.4;
                 const searchStartSpeedForLt1 = minLactatePoint.speed;
                 let lt1Speed = 0, minSpeedDiff = Infinity;
-                const speedRange = parsedData[parsedData.length-1].speed - parsedData[0].speed;
-                for (let s = searchStartSpeedForLt1; s <= parsedData[parsedData.length - 1].speed; s += speedRange/1000) {
-                     const predictedLactate = speedLactateRegression.predict(s)[1];
-                     const diff = Math.abs(predictedLactate - lt1Lactate);
-                     if (diff < minSpeedDiff) { minSpeedDiff = diff; lt1Speed = s; }
+                const speedRange = parsedData[parsedData.length - 1].speed - parsedData[0].speed;
+                for (let s = searchStartSpeedForLt1; s <= parsedData[parsedData.length - 1].speed; s += speedRange / 1000) {
+                    const predictedLactate = speedLactateRegression.predict(s)[1];
+                    const diff = Math.abs(predictedLactate - lt1Lactate);
+                    if (diff < minSpeedDiff) { minSpeedDiff = diff; lt1Speed = s; }
                 }
                 const lt1Hr = speedHrRegression.predict(lt1Speed)[1];
 
-                let modDmaxStartDataPoint = parsedData[0]; 
+                let modDmaxStartDataPoint = parsedData[0];
                 for (let i = 1; i < parsedData.length; i++) {
                     if (parsedData[i].lactate - parsedData[i - 1].lactate > 0.4) { modDmaxStartDataPoint = parsedData[i - 1]; break; }
                 }
                 const endPointDataPoint = parsedData[parsedData.length - 1];
-                const modStartPoint = {x: modDmaxStartDataPoint.speed, y: modDmaxStartDataPoint.lactate};
-                const endPoint = {x: endPointDataPoint.speed, y: endPointDataPoint.lactate};
+                const modStartPoint = { x: modDmaxStartDataPoint.speed, y: modDmaxStartDataPoint.lactate };
+                const endPoint = { x: endPointDataPoint.speed, y: endPointDataPoint.lactate };
                 let maxDistance = 0; let lt2Point = { speed: 0, lactate: 0 };
-                 for (let s = modStartPoint.x; s <= endPoint.x; s += speedRange/1000) {
+                for (let s = modStartPoint.x; s <= endPoint.x; s += speedRange / 1000) {
                     const curveLactate = speedLactateRegression.predict(s)[1];
                     const distance = perpendicularDistance({ x: s, y: curveLactate }, modStartPoint, endPoint);
                     if (distance > maxDistance) { maxDistance = distance; lt2Point = { speed: s, lactate: curveLactate }; }
                 }
                 const lt2Hr = speedHrRegression.predict(lt2Point.speed)[1];
-                
+
                 const fixedLactateTargets = [2, 4, 6];
                 const fixedLactateResultsData = {};
                 fixedLactateTargets.forEach(targetLactate => {
@@ -395,7 +453,7 @@
                     }
                     fixedLactateResultsData[targetLactate] = { hr: speedHrRegression.predict(bestSpeed)[1].toFixed(0), speed: bestSpeed.toFixed(2) };
                 });
-                
+
                 let efficiencyData = null;
                 if (hasSrData) {
                     efficiencyData = parsedData.map((d, i) => ({ step: i + 1, efficiency: (d.speed ** 3) / (d.sr / 60) }));
@@ -405,20 +463,15 @@
                     efficiencyResultsDiv.classList.add('hidden');
                 }
 
-                lastCalculationData = { parsedData, efficiencyData, regressions: { lactate: speedLactateRegression, hr: speedHrRegression, sr: speedSrRegression }, thresholds: { lt1: {speed: lt1Speed, lactate: lt1Lactate}, lt2: lt2Point, modDmaxLine: { start: modStartPoint, end: endPoint} } };
+                lastCalculationData = { parsedData, efficiencyData, regressions: { lactate: speedLactateRegression, hr: speedHrRegression, sr: speedSrRegression }, thresholds: { lt1: { speed: lt1Speed, lactate: lt1Lactate }, lt2: lt2Point, modDmaxLine: { start: modStartPoint, end: endPoint } } };
                 displayResults({ lt1: { hr: lt1Hr.toFixed(0), speed: lt1Speed.toFixed(2), lactate: lt1Lactate.toFixed(2) }, lt2: { hr: lt2Hr.toFixed(0), speed: lt2Point.speed.toFixed(2), lactate: lt2Point.lactate.toFixed(2) } });
                 displayFixedLactatePoints(fixedLactateResultsData);
 
-                const srToggleButton = chartViewToggleContainer.querySelector('button[data-type="sr"]');
-                srToggleButton.disabled = !hasSrData;
-                if(hasSrData){ srToggleButton.classList.remove('opacity-50', 'cursor-not-allowed'); } else { srToggleButton.classList.add('opacity-50', 'cursor-not-allowed'); }
-
-                currentChartType = 'lactate';
-                chartViewToggleContainer.querySelector('.toggle-btn-active').classList.remove('toggle-btn-active');
-                chartViewToggleContainer.querySelector('button[data-type="lactate"]').classList.add('toggle-btn-active');
-                renderChart();
+                renderLactateChart();
+                renderHrChart();
+                renderSrChart();
                 renderEfficiencyChart();
-                
+
                 errorDiv.classList.add('hidden');
                 resultsDiv.classList.remove('hidden');
 
@@ -432,10 +485,10 @@
             }
         });
 
-        function perpendicularDistance(p, a, b) { const {x,y}=p,{x:x1,y:y1}=a,{x:x2,y:y2}=b; const A=y2-y1,B=x1-x2,C=-A*x1-B*y1; return Math.abs(A*x+B*y+C)/Math.sqrt(A*A+B*B); }
-        function displayResults(t) { document.getElementById('lt1_hr').textContent=t.lt1.hr; document.getElementById('lt1_speed').textContent=t.lt1.speed; document.getElementById('lt1_lactate').textContent=t.lt1.lactate; document.getElementById('lt2_hr').textContent=t.lt2.hr; document.getElementById('lt2_speed').textContent=t.lt2.speed; document.getElementById('lt2_lactate').textContent=t.lt2.lactate; }
-        function displayFixedLactatePoints(r) { document.getElementById('hr_2mmol').textContent=r[2].hr; document.getElementById('speed_2mmol').textContent=r[2].speed; document.getElementById('hr_4mmol').textContent=r[4].hr; document.getElementById('speed_4mmol').textContent=r[4].speed; document.getElementById('hr_6mmol').textContent=r[6].hr; document.getElementById('speed_6mmol').textContent=r[6].speed; }
-        
+        function perpendicularDistance(p, a, b) { const { x, y } = p, { x: x1, y: y1 } = a, { x: x2, y: y2 } = b; const A = y2 - y1, B = x1 - x2, C = -A * x1 - B * y1; return Math.abs(A * x + B * y + C) / Math.sqrt(A * A + B * B); }
+        function displayResults(t) { document.getElementById('lt1_hr').textContent = t.lt1.hr; document.getElementById('lt1_speed').textContent = t.lt1.speed; document.getElementById('lt1_lactate').textContent = t.lt1.lactate; document.getElementById('lt2_hr').textContent = t.lt2.hr; document.getElementById('lt2_speed').textContent = t.lt2.speed; document.getElementById('lt2_lactate').textContent = t.lt2.lactate; }
+        function displayFixedLactatePoints(r) { document.getElementById('hr_2mmol').textContent = r[2].hr; document.getElementById('speed_2mmol').textContent = r[2].speed; document.getElementById('hr_4mmol').textContent = r[4].hr; document.getElementById('speed_4mmol').textContent = r[4].speed; document.getElementById('hr_6mmol').textContent = r[6].hr; document.getElementById('speed_6mmol').textContent = r[6].speed; }
+
         function displayEfficiency(efficiencyData) {
             const efficiencyBody = document.getElementById('efficiencyBody');
             efficiencyBody.innerHTML = '';
@@ -456,7 +509,7 @@
                 const hue = 160 + (percentage * 50); // From teal (160) to bright blue (210)
                 return `hsl(${hue}, 70%, 50%)`;
             };
-            
+
             const getNegativeGradientColor = (value, max) => {
                 const percentage = max === 0 ? 1 : value / max;
                 const hue = 60 - (percentage * 60); // From yellow (60) to red (0)
@@ -517,57 +570,71 @@
                     y: { title: { display: true, text: yAxisLabel, font: { size: 14 }, color: labelColor }, ticks: { color: tickColor }, grid: { color: tickColor } }
                 },
                 plugins: {
-                    legend: { labels: { color: labelColor, filter: (i,c) => !i.text.includes('Curve') && !i.text.includes('Line') } },
-                    tooltip: { callbacks: { label: (c) => `${c.dataset.label||''}: (${c.parsed.x.toFixed(2)}, ${c.parsed.y.toFixed(3)})` } }
+                    legend: { labels: { color: labelColor, filter: (i, c) => !i.text.includes('Curve') && !i.text.includes('Line') } },
+                    tooltip: { callbacks: { label: (c) => `${c.dataset.label || ''}: (${c.parsed.x.toFixed(2)}, ${c.parsed.y.toFixed(3)})` } }
                 }
             };
         }
 
-        function renderChart() {
+        function renderLactateChart() {
             if (!lastCalculationData) return;
             const { parsedData, regressions, thresholds } = lastCalculationData;
             const ctx = document.getElementById('lactateChart').getContext('2d');
-            const datasets = [];
-            let options;
             const minSpeed = parsedData[0].speed, maxSpeed = parsedData[parsedData.length - 1].speed, speedRange = maxSpeed - minSpeed;
 
-            switch(currentChartType) {
-                case 'lactate':
-                    options = getChartOptions('Blood Lactate (mmol/L)');
-                    datasets.push(
-                        { label: 'Athlete Data', data: parsedData.map(d => ({ x: d.speed, y: d.lactate })), backgroundColor: 'rgba(255, 255, 255, 0.7)', pointRadius: 6, order: 0 },
-                        { label: '3rd Order Polynomial Curve', data: Array.from({length:101},(_,i)=>minSpeed+i*speedRange/100).map(s=>({x:s,y:regressions.lactate.predict(s)[1]})), type: 'line', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 2, pointRadius: 0, order: 1 },
-                        { label: 'Line (for ModDMax)', data: [thresholds.modDmaxLine.start, thresholds.modDmaxLine.end], type: 'line', borderColor: 'rgba(192, 132, 252, 0.6)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0, order: 2 },
-                        { label: 'LT1', data: [{ x: thresholds.lt1.speed, y: thresholds.lt1.lactate }], backgroundColor: 'rgba(45, 212, 191, 1)', borderColor: 'white', borderWidth: 2, pointRadius: 8, order: 3 },
-                        { label: 'LT2 (ModDMax)', data: [{ x: thresholds.lt2.speed, y: thresholds.lt2.lactate }], backgroundColor: 'rgba(248, 113, 113, 1)', borderColor: 'white', borderWidth: 2, pointRadius: 8, order: 4 }
-                    );
-                    break;
-                case 'hr':
-                    options = getChartOptions('Heart Rate (BPM)');
-                     datasets.push(
-                        { label: 'Athlete Data', data: parsedData.map(d => ({ x: d.speed, y: d.hr })), backgroundColor: 'rgba(255, 255, 255, 0.7)', pointRadius: 6 },
-                        { label: 'HR Curve', data: Array.from({length:101},(_,i)=>minSpeed+i*speedRange/100).map(s=>({x:s,y:regressions.hr.predict(s)[1]})), type: 'line', borderColor: 'rgba(248, 113, 113, 1)', borderWidth: 2, pointRadius: 0 }
-                    );
-                    break;
-                case 'sr':
-                    options = getChartOptions('Stroke Rate (spm)');
-                    if (regressions.sr) {
-                         datasets.push(
-                            { label: 'Athlete Data', data: parsedData.map(d => ({ x: d.speed, y: d.sr })), backgroundColor: 'rgba(255, 255, 255, 0.7)', pointRadius: 6 },
-                            { label: 'SR Curve', data: Array.from({length:101},(_,i)=>minSpeed+i*speedRange/100).map(s=>({x:s,y:regressions.sr.predict(s)[1]})), type: 'line', borderColor: 'rgba(45, 212, 191, 1)', borderWidth: 2, pointRadius: 0 }
-                        );
-                    }
-                    break;
-            }
+            const options = getChartOptions('Blood Lactate (mmol/L)');
+            const datasets = [
+                { label: 'Athlete Data', data: parsedData.map(d => ({ x: d.speed, y: d.lactate })), backgroundColor: 'rgba(255, 255, 255, 0.7)', pointRadius: 6, order: 0 },
+                { label: '3rd Order Polynomial Curve', data: Array.from({ length: 101 }, (_, i) => minSpeed + i * speedRange / 100).map(s => ({ x: s, y: regressions.lactate.predict(s)[1] })), type: 'line', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 2, pointRadius: 0, order: 1 },
+                { label: 'Line (for ModDMax)', data: [thresholds.modDmaxLine.start, thresholds.modDmaxLine.end], type: 'line', borderColor: 'rgba(192, 132, 252, 0.6)', borderDash: [5, 5], borderWidth: 2, pointRadius: 0, order: 2 },
+                { label: 'LT1', data: [{ x: thresholds.lt1.speed, y: thresholds.lt1.lactate }], backgroundColor: 'rgba(45, 212, 191, 1)', borderColor: 'white', borderWidth: 2, pointRadius: 8, order: 3 },
+                { label: 'LT2 (ModDMax)', data: [{ x: thresholds.lt2.speed, y: thresholds.lt2.lactate }], backgroundColor: 'rgba(248, 113, 113, 1)', borderColor: 'white', borderWidth: 2, pointRadius: 8, order: 4 }
+            ];
+
             if (lactateChart) { lactateChart.destroy(); }
             lactateChart = new Chart(ctx, { type: 'scatter', data: { datasets }, options });
         }
 
+        function renderHrChart() {
+            if (!lastCalculationData) return;
+            const { parsedData, regressions } = lastCalculationData;
+            const ctx = document.getElementById('hrChart').getContext('2d');
+            const minSpeed = parsedData[0].speed, maxSpeed = parsedData[parsedData.length - 1].speed, speedRange = maxSpeed - minSpeed;
+
+            const options = getChartOptions('Heart Rate (BPM)');
+            const datasets = [
+                { label: 'Athlete Data', data: parsedData.map(d => ({ x: d.speed, y: d.hr })), backgroundColor: 'rgba(255, 255, 255, 0.7)', pointRadius: 6 },
+                { label: 'HR Curve', data: Array.from({ length: 101 }, (_, i) => minSpeed + i * speedRange / 100).map(s => ({ x: s, y: regressions.hr.predict(s)[1] })), type: 'line', borderColor: 'rgba(248, 113, 113, 1)', borderWidth: 2, pointRadius: 0 }
+            ];
+
+            if (hrChart) { hrChart.destroy(); }
+            hrChart = new Chart(ctx, { type: 'scatter', data: { datasets }, options });
+        }
+
+        function renderSrChart() {
+            if (!lastCalculationData) return;
+            const { parsedData, regressions } = lastCalculationData;
+            const ctx = document.getElementById('srChart').getContext('2d');
+            const minSpeed = parsedData[0].speed, maxSpeed = parsedData[parsedData.length - 1].speed, speedRange = maxSpeed - minSpeed;
+
+            const options = getChartOptions('Stroke Rate (spm)');
+            let datasets = [];
+            if (regressions.sr) {
+                datasets = [
+                    { label: 'Athlete Data', data: parsedData.map(d => ({ x: d.speed, y: d.sr })), backgroundColor: 'rgba(255, 255, 255, 0.7)', pointRadius: 6 },
+                    { label: 'SR Curve', data: Array.from({ length: 101 }, (_, i) => minSpeed + i * speedRange / 100).map(s => ({ x: s, y: regressions.sr.predict(s)[1] })), type: 'line', borderColor: 'rgba(45, 212, 191, 1)', borderWidth: 2, pointRadius: 0 }
+                ];
+            }
+
+            if (srChart) { srChart.destroy(); }
+            srChart = new Chart(ctx, { type: 'scatter', data: { datasets }, options });
+        }
+
         function renderEfficiencyChart() {
             if (!lastCalculationData || !lastCalculationData.efficiencyData) {
-                 if(efficiencyChart) efficiencyChart.destroy();
-                 efficiencyChart = null;
-                 return;
+                if (efficiencyChart) efficiencyChart.destroy();
+                efficiencyChart = null;
+                return;
             }
             const { parsedData, efficiencyData } = lastCalculationData;
             const ctx = document.getElementById('efficiencyChart').getContext('2d');
@@ -584,13 +651,11 @@
             if (efficiencyChart) { efficiencyChart.destroy(); }
             efficiencyChart = new Chart(ctx, { type: 'line', data: { datasets }, options });
         }
-        
+
         // Initial setup
         updateTableHeaders(currentTableType);
         populateTable(7);
     </script>
 </body>
+
 </html>
-
-
-
