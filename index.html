@@ -234,13 +234,13 @@
     </div>
 
     <!-- Training Zones Table -->
-    <div id="trainingZones" class="hidden bg-gray-800 p-6 rounded-2xl shadow-lg mb-8 max-w-5xl mx-auto">
+    <div id="trainingZones" class="hidden bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
         <h2 class="text-2xl font-semibold mb-4 text-white">4. Training Zones</h2>
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-center border-separate border-spacing-0 rounded-lg overflow-hidden">
                 <thead class="bg-gray-900 text-white">
                     <tr>
-                        <th class="p-3 border border-gray-700">Domain</th> <!-- Intensity/Domain -->
+                        <th class="p-3 border border-gray-700 w-32">Domain</th> <!-- Intensity/Domain -->
                         <th class="p-3 border border-gray-700">Zone</th>
                         <th class="p-3 border border-gray-700">Descriptor</th>
                         <th class="p-3 border border-gray-700">Heart Rate (BPM)</th>
@@ -252,8 +252,9 @@
                 <tbody class="font-bold text-gray-900">
                     <!-- MODERATE -->
                     <tr>
-                        <td rowspan="2" class="bg-white border-b border-gray-300 p-2 align-middle"><span
-                                class="block transform -rotate-90 whitespace-nowrap">MODERATE</span></td>
+                        <td rowspan="2"
+                            class="bg-white border-b border-gray-300 p-2 align-middle font-black text-gray-900 tracking-wider text-center">
+                            MODERATE</td>
                         <td class="bg-lime-500 p-3 border-b border-gray-800/20">T1</td>
                         <td class="bg-lime-500 p-3 border-b border-gray-800/20 text-left pl-4">Light Aerobic</td>
                         <td id="zone_t1_hr" class="bg-lime-500 p-3 border-b border-gray-800/20">-</td>
@@ -279,8 +280,9 @@
 
                     <!-- HEAVY -->
                     <tr>
-                        <td rowspan="2" class="bg-white border-b border-gray-300 p-2 align-middle"><span
-                                class="block transform -rotate-90 whitespace-nowrap">HEAVY</span></td>
+                        <td rowspan="2"
+                            class="bg-white border-b border-gray-300 p-2 align-middle font-black text-gray-900 tracking-wider text-center">
+                            HEAVY</td>
                         <td class="bg-yellow-400 p-3 border-b border-gray-800/20">T3</td>
                         <td class="bg-yellow-400 p-3 border-b border-gray-800/20 text-left pl-4">Heavy Aerobic</td>
                         <td id="zone_t3_hr" class="bg-yellow-400 p-3 border-b border-gray-800/20">-</td>
@@ -307,8 +309,9 @@
 
                     <!-- SEVERE -->
                     <tr>
-                        <td class="bg-white border-b border-gray-300 p-2 align-middle"><span
-                                class="block transform -rotate-90 whitespace-nowrap">SEVERE*</span></td>
+                        <td
+                            class="bg-white border-b border-gray-300 p-2 align-middle font-black text-gray-900 tracking-wider text-center">
+                            SEVERE*</td>
                         <td class="bg-orange-600 p-3 text-white">T5</td>
                         <td class="bg-orange-600 p-3 text-white text-left pl-4">Maximal Aerobic</td>
                         <td id="zone_t5_hr" class="bg-orange-600 p-3 text-white">-</td>
@@ -319,8 +322,9 @@
 
                     <!-- EXTREME -->
                     <tr>
-                        <td rowspan="3" class="bg-white p-2 align-middle"><span
-                                class="block transform -rotate-90 whitespace-nowrap">EXTREME*</span></td>
+                        <td rowspan="3"
+                            class="bg-white p-2 align-middle font-black text-gray-900 tracking-wider text-center">
+                            EXTREME*</td>
                         <td class="bg-red-600 p-3 text-white border-b border-gray-800/20">T6</td>
                         <td class="bg-red-600 p-3 text-white text-left pl-4 border-b border-gray-800/20">Speed/Power
                             Tolerance</td>
@@ -352,7 +356,7 @@
     </div>
 
     <!-- Step Efficiency Table -->
-    <div id="efficiencyResults" class="hidden bg-gray-800 p-6 rounded-2xl shadow-lg max-w-5xl mx-auto">
+    <div id="efficiencyResults" class="hidden bg-gray-800 p-6 rounded-2xl shadow-lg">
         <h2 class="text-2xl font-semibold mb-4 text-white">5. Step Efficiency</h2>
         <p class="text-sm text-gray-400 mb-4">Calculated as (velocity³) / (stroke rate / 60).</p>
         <div class="overflow-x-auto">
