@@ -607,7 +607,7 @@
                 // Calculate and display Training Zones
                 const maxHr = parsedData[parsedData.length - 1].hr;
                 const maxSpeed = parsedData[parsedData.length - 1].speed;
-                displayTrainingZones({ maxHr, lt1Hr, lt2Hr, maxSpeed, lt1Speed, lt2Speed });
+                displayTrainingZones({ maxHr, lt1Hr, lt2Hr, maxSpeed, lt1Speed, lt2Speed: lt2Point.speed });
 
                 renderLactateChart();
                 renderHrChart();
