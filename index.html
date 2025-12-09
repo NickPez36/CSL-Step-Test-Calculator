@@ -151,9 +151,9 @@
                     class="flex-1 bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
                     Calculate Thresholds & Efficiency
                 </button>
-                <button id="exportPdfBtn"
+                <button id="previewReportBtn"
                     class="flex-1 bg-green-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 hidden">
-                    Export to PDF
+                    Preview & Export PDF
                 </button>
             </div>
             <div id="error" class="mt-4 text-red-400 font-medium hidden"></div>
@@ -436,203 +436,226 @@
     </div>
 
 
-    <!-- Printable Report Template (Hidden) -->
-    <div id="printableReport" class="hidden bg-white text-black p-8 font-sans">
-        <style>
-            #printableReport .page-break {
-                page-break-before: always;
-            }
+    <!-- Printable Report Modal (Hidden) -->
+    <div id="printableReport" class="hidden fixed inset-0 bg-gray-900 bg-opacity-95 z-50 overflow-y-auto">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="bg-white text-black p-8 max-w-4xl w-full rounded-lg shadow-2xl relative">
 
-            #printableReport h1 {
-                font-size: 24px;
-                font-weight: bold;
-                margin-bottom: 10px;
-                color: #111827;
-            }
-
-            #printableReport h2 {
-                font-size: 20px;
-                font-weight: 600;
-                margin-bottom: 8px;
-                color: #374151;
-                border-bottom: 2px solid #e5e7eb;
-                padding-bottom: 4px;
-            }
-
-            #printableReport h3 {
-                font-size: 16px;
-                font-weight: 600;
-                color: #4b5563;
-            }
-
-            #printableReport p,
-            #printableReport td,
-            #printableReport th {
-                font-size: 12px;
-            }
-
-            #printableReport table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-bottom: 16px;
-            }
-
-            #printableReport th,
-            #printableReport td {
-                border: 1px solid #d1d5db;
-                padding: 4px 8px;
-                text-align: center;
-            }
-
-            #printableReport th {
-                background-color: #f3f4f6;
-                font-weight: 600;
-            }
-
-            #printableReport .chart-container {
-                position: relative;
-                height: 300px;
-                width: 100%;
-                margin-bottom: 16px;
-            }
-
-            #printableReport .section-box {
-                border: 1px solid #e5e7eb;
-                padding: 12px;
-                border-radius: 8px;
-                margin-bottom: 16px;
-            }
-
-            #printableReport .meta-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 12px;
-                margin-bottom: 16px;
-            }
-
-            #printableReport .meta-item {
-                display: flex;
-                flex-direction: column;
-            }
-
-            #printableReport .meta-label {
-                font-size: 10px;
-                color: #6b7280;
-                font-weight: 600;
-                text-transform: uppercase;
-            }
-
-            #printableReport .meta-value {
-                font-size: 14px;
-                font-weight: 500;
-                color: #111827;
-            }
-        </style>
-
-        <!-- Page 1: Details, Inputs, Charts -->
-        <div class="page-1">
-            <h1 class="text-center mb-6">Canoe Slalom Lactate Threshold Report</h1>
-
-            <!-- Metadata -->
-            <div class="section-box">
-                <div class="meta-grid">
-                    <div class="meta-item"><span class="meta-label">Athlete Name</span><span id="print_athleteName"
-                            class="meta-value">-</span></div>
-                    <div class="meta-item"><span class="meta-label">Date</span><span id="print_date"
-                            class="meta-value">-</span></div>
-                    <div class="meta-item"><span class="meta-label">Boat Class</span><span id="print_boatClass"
-                            class="meta-value">-</span></div>
-                    <div class="meta-item"><span class="meta-label">Protocol</span><span id="print_protocol"
-                            class="meta-value">-</span></div>
-                </div>
-                <div class="meta-item w-full"><span class="meta-label">Comments</span><span id="print_comments"
-                        class="meta-value">-</span></div>
-            </div>
-
-            <!-- Input Data -->
-            <h2 class="section-title">Step Test Data</h2>
-            <div id="print_inputTableContainer"></div>
-
-            <!-- Charts (2x2 Grid) -->
-            <h2 class="section-title mt-6">Performance Visualizations</h2>
-            <div class="grid grid-cols-2 gap-4">
-                <div class="chart-container"><canvas id="print_lactateChart"></canvas></div>
-                <div class="chart-container"><canvas id="print_hrChart"></canvas></div>
-                <div class="chart-container"><canvas id="print_srChart"></canvas></div>
-                <div class="chart-container"><canvas id="print_efficiencyChart"></canvas></div>
-            </div>
-        </div>
-
-        <!-- Page 2: Thresholds, Zones -->
-        <div class="page-break">
-            <h2 class="mb-6">Thresholds & Training Zones</h2>
-
-            <!-- Calculated Thresholds -->
-            <div class="grid grid-cols-2 gap-6 mb-6">
-                <div class="section-box bg-teal-50 border-teal-200">
-                    <h3 class="text-teal-800 mb-2">Lactate Threshold 1 (LT1)</h3>
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div>
-                            <p class="meta-label">HR</p>
-                            <p id="print_lt1_hr" class="text-lg font-bold">-</p>
-                        </div>
-                        <div>
-                            <p class="meta-label">Speed</p>
-                            <p id="print_lt1_speed" class="text-lg font-bold">-</p>
-                        </div>
-                        <div>
-                            <p class="meta-label">Lactate</p>
-                            <p id="print_lt1_lactate" class="text-lg font-bold">-</p>
-                        </div>
+                <!-- Controls (Ignored by html2pdf) -->
+                <div class="flex justify-between items-center mb-8 border-b pb-4" data-html2canvas-ignore="true">
+                    <h2 class="text-xl font-bold text-gray-800">Report Preview</h2>
+                    <div class="flex gap-4">
+                        <button id="closePreviewBtn"
+                            class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">
+                            Close
+                        </button>
+                        <button id="downloadPdfBtn"
+                            class="px-4 py-2 bg-blue-600 text-white font-bold rounded hover:bg-blue-700 transition">
+                            Download PDF
+                        </button>
                     </div>
                 </div>
-                <div class="section-box bg-red-50 border-red-200">
-                    <h3 class="text-red-800 mb-2">Lactate Threshold 2 (LT2)</h3>
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div>
-                            <p class="meta-label">HR</p>
-                            <p id="print_lt2_hr" class="text-lg font-bold">-</p>
+
+                <!-- Report Content -->
+                <div id="reportContent">
+                    <style>
+                        #printableReport .page-break {
+                            page-break-before: always;
+                        }
+
+                        #printableReport h1 {
+                            font-size: 24px;
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                            color: #111827;
+                        }
+
+                        #printableReport h2 {
+                            font-size: 20px;
+                            font-weight: 600;
+                            margin-bottom: 8px;
+                            color: #374151;
+                            border-bottom: 2px solid #e5e7eb;
+                            padding-bottom: 4px;
+                        }
+
+                        #printableReport h3 {
+                            font-size: 16px;
+                            font-weight: 600;
+                            color: #4b5563;
+                        }
+
+                        #printableReport p,
+                        #printableReport td,
+                        #printableReport th {
+                            font-size: 12px;
+                        }
+
+                        #printableReport table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-bottom: 16px;
+                        }
+
+                        #printableReport th,
+                        #printableReport td {
+                            border: 1px solid #d1d5db;
+                            padding: 4px 8px;
+                            text-align: center;
+                        }
+
+                        #printableReport th {
+                            background-color: #f3f4f6;
+                            font-weight: 600;
+                        }
+
+                        #printableReport .chart-container {
+                            position: relative;
+                            height: 300px;
+                            width: 100%;
+                            margin-bottom: 16px;
+                        }
+
+                        #printableReport .section-box {
+                            border: 1px solid #e5e7eb;
+                            padding: 12px;
+                            border-radius: 8px;
+                            margin-bottom: 16px;
+                        }
+
+                        #printableReport .meta-grid {
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 12px;
+                            margin-bottom: 16px;
+                        }
+
+                        #printableReport .meta-item {
+                            display: flex;
+                            flex-direction: column;
+                        }
+
+                        #printableReport .meta-label {
+                            font-size: 10px;
+                            color: #6b7280;
+                            font-weight: 600;
+                            text-transform: uppercase;
+                        }
+
+                        #printableReport .meta-value {
+                            font-size: 14px;
+                            font-weight: 500;
+                            color: #111827;
+                        }
+                    </style>
+
+                    <!-- Page 1: Details, Inputs, Charts -->
+                    <div class="page-1">
+                        <h1 class="text-center mb-6">Canoe Slalom Lactate Threshold Report</h1>
+
+                        <!-- Metadata -->
+                        <div class="section-box">
+                            <div class="meta-grid">
+                                <div class="meta-item"><span class="meta-label">Athlete Name</span><span
+                                        id="print_athleteName" class="meta-value">-</span></div>
+                                <div class="meta-item"><span class="meta-label">Date</span><span id="print_date"
+                                        class="meta-value">-</span></div>
+                                <div class="meta-item"><span class="meta-label">Boat Class</span><span
+                                        id="print_boatClass" class="meta-value">-</span></div>
+                                <div class="meta-item"><span class="meta-label">Protocol</span><span id="print_protocol"
+                                        class="meta-value">-</span></div>
+                            </div>
+                            <div class="meta-item w-full"><span class="meta-label">Comments</span><span
+                                    id="print_comments" class="meta-value">-</span></div>
                         </div>
-                        <div>
-                            <p class="meta-label">Speed</p>
-                            <p id="print_lt2_speed" class="text-lg font-bold">-</p>
-                        </div>
-                        <div>
-                            <p class="meta-label">Lactate</p>
-                            <p id="print_lt2_lactate" class="text-lg font-bold">-</p>
+
+                        <!-- Input Data -->
+                        <h2 class="section-title">Step Test Data</h2>
+                        <div id="print_inputTableContainer"></div>
+
+                        <!-- Charts (2x2 Grid) -->
+                        <h2 class="section-title mt-6">Performance Visualizations</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="chart-container"><canvas id="print_lactateChart"></canvas></div>
+                            <div class="chart-container"><canvas id="print_hrChart"></canvas></div>
+                            <div class="chart-container"><canvas id="print_srChart"></canvas></div>
+                            <div class="chart-container"><canvas id="print_efficiencyChart"></canvas></div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Page 2: Thresholds, Zones -->
+                    <div class="page-break">
+                        <h2 class="mb-6">Thresholds & Training Zones</h2>
+
+                        <!-- Calculated Thresholds -->
+                        <div class="grid grid-cols-2 gap-6 mb-6">
+                            <div class="section-box bg-teal-50 border-teal-200">
+                                <h3 class="text-teal-800 mb-2">Lactate Threshold 1 (LT1)</h3>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div>
+                                        <p class="meta-label">HR</p>
+                                        <p id="print_lt1_hr" class="text-lg font-bold">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="meta-label">Speed</p>
+                                        <p id="print_lt1_speed" class="text-lg font-bold">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="meta-label">Lactate</p>
+                                        <p id="print_lt1_lactate" class="text-lg font-bold">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="section-box bg-red-50 border-red-200">
+                                <h3 class="text-red-800 mb-2">Lactate Threshold 2 (LT2)</h3>
+                                <div class="grid grid-cols-3 gap-2 text-center">
+                                    <div>
+                                        <p class="meta-label">HR</p>
+                                        <p id="print_lt2_hr" class="text-lg font-bold">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="meta-label">Speed</p>
+                                        <p id="print_lt2_speed" class="text-lg font-bold">-</p>
+                                    </div>
+                                    <div>
+                                        <p class="meta-label">Lactate</p>
+                                        <p id="print_lt2_lactate" class="text-lg font-bold">-</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Key Lactate Points -->
+                        <div class="section-box mb-6">
+                            <h3 class="mb-4">Key Lactate Points</h3>
+                            <div class="grid grid-cols-3 gap-4 text-center">
+                                <div>
+                                    <h4 class="font-bold">2.0 mmol/L</h4>
+                                    <p id="print_2mmol" class="text-sm mt-1">-</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">4.0 mmol/L</h4>
+                                    <p id="print_4mmol" class="text-sm mt-1">-</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">6.0 mmol/L</h4>
+                                    <p id="print_6mmol" class="text-sm mt-1">-</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Training Zones -->
+                        <h3 class="mb-2">Training Zones</h3>
+                        <div id="print_zonesTableContainer"></div>
+                    </div>
+
+                    <!-- Page 3: Efficiency -->
+                    <div class="page-break">
+                        <h2 class="mb-6">Step Efficiency Analysis</h2>
+                        <div id="print_efficiencyTableContainer"></div>
+                    </div>
+                </div> <!-- End reportContent -->
             </div>
-
-            <!-- Key Lactate Points -->
-            <div class="section-box mb-6">
-                <h3 class="mb-4">Key Lactate Points</h3>
-                <div class="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                        <h4 class="font-bold">2.0 mmol/L</h4>
-                        <p id="print_2mmol" class="text-sm mt-1">-</p>
-                    </div>
-                    <div>
-                        <h4 class="font-bold">4.0 mmol/L</h4>
-                        <p id="print_4mmol" class="text-sm mt-1">-</p>
-                    </div>
-                    <div>
-                        <h4 class="font-bold">6.0 mmol/L</h4>
-                        <p id="print_6mmol" class="text-sm mt-1">-</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Training Zones -->
-            <h3 class="mb-2">Training Zones</h3>
-            <div id="print_zonesTableContainer"></div>
-        </div>
-
-        <!-- Page 3: Efficiency -->
-        <div class="page-break">
-            <h2 class="mb-6">Step Efficiency Analysis</h2>
-            <div id="print_efficiencyTableContainer"></div>
         </div>
     </div>
 
@@ -1035,14 +1058,24 @@
         }
 
         // --- PDF Export Logic ---
-        document.getElementById('exportPdfBtn').addEventListener('click', async () => {
-            const btn = document.getElementById('exportPdfBtn');
-            const originalText = btn.textContent;
-            btn.textContent = 'Generating PDF...';
-            btn.disabled = true;
+        const previewBtn = document.getElementById('previewReportBtn');
+        const closeBtn = document.getElementById('closePreviewBtn');
+        const downloadBtn = document.getElementById('downloadPdfBtn');
+        const modal = document.getElementById('printableReport');
+
+        // Close Modal
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+
+        // Open Preview
+        previewBtn.addEventListener('click', async () => {
+            const originalText = previewBtn.textContent;
+            previewBtn.textContent = 'Generating Preview...';
+            previewBtn.disabled = true;
 
             try {
-                // 1. Populate Metadata
+                // 1. Populate Metadata & Data (Same as before)
                 document.getElementById('print_athleteName').textContent = document.getElementById('athleteName').value || '-';
                 const d = document.getElementById('testDate').value;
                 document.getElementById('print_date').textContent = d ? new Date(d).toLocaleDateString() : '-';
@@ -1050,33 +1083,24 @@
                 document.getElementById('print_protocol').textContent = document.getElementById('protocol').value || '-';
                 document.getElementById('print_comments').textContent = document.getElementById('comments').value || '-';
 
-                // 2. Clone Tables
-                // Input Table (Create a static version)
+                // Input Table
                 const inputContainer = document.getElementById('print_inputTableContainer');
                 let inputHtml = '<table class="w-full text-xs"><thead><tr class="bg-gray-100">';
-                // Headers from current type
                 const headers = tableConfigs[currentTableType].headers;
                 headers.forEach(h => inputHtml += `<th>${h}</th>`);
                 inputHtml += '</tr></thead><tbody>';
-
-                // Rows
-                // We need to read values from inputs
                 for (let i = 0; i < dataBody.rows.length; i++) {
                     const row = dataBody.rows[i];
                     inputHtml += '<tr>';
-                    inputHtml += `<td>${row.cells[0].querySelector('input').value}</td>`; // Step
-                    // Loop other cells
-                    for (let j = 1; j < row.cells.length; j++) {
-                        const val = row.cells[j].querySelector('input').value;
-                        inputHtml += `<td>${val}</td>`;
-                    }
+                    inputHtml += `<td>${row.cells[0].querySelector('input').value}</td>`;
+                    for (let j = 1; j < row.cells.length; j++) inputHtml += `<td>${row.cells[j].querySelector('input').value}</td>`;
                     inputHtml += '</tr>';
                 }
                 inputHtml += '</tbody></table>';
                 inputContainer.innerHTML = inputHtml;
 
                 // Thresholds
-                const t = lastCalculationData; // Assume this is fresh
+                const t = lastCalculationData;
                 if (!t) throw new Error("No data calculated");
                 document.getElementById('print_lt1_hr').textContent = document.getElementById('lt1_hr').textContent;
                 document.getElementById('print_lt1_speed').textContent = document.getElementById('lt1_speed').textContent;
@@ -1090,57 +1114,48 @@
                 document.getElementById('print_4mmol').textContent = `HR: ${document.getElementById('hr_4mmol').textContent}, Speed: ${document.getElementById('speed_4mmol').textContent}`;
                 document.getElementById('print_6mmol').textContent = `HR: ${document.getElementById('hr_6mmol').textContent}, Speed: ${document.getElementById('speed_6mmol').textContent}`;
 
-                // Training Zones Table (Clone and style)
+                // Training Zones
                 const zonesTable = document.querySelector('#trainingZones table').cloneNode(true);
-                // Strip input/dark classes? No, they are standard tables. Just ensure text is black.
                 zonesTable.classList.remove('text-center', 'text-sm');
                 zonesTable.classList.add('text-xs');
-                // Remove white text classes from cells and replace with black if needed, or let parent CSS handle it?
-                // The current table has explicit 'text-white' utility classes on some cells (Extrteme/Severe). 
-                // We need to override or remove them. 
-                zonesTable.querySelectorAll('.text-white').forEach(el => {
-                    el.classList.remove('text-white');
-                    el.classList.add('text-black'); // Force black for print
-                });
-                zonesTable.querySelectorAll('thead').forEach(el => {
-                    el.classList.remove('bg-gray-900', 'text-white');
-                    el.classList.add('bg-gray-200', 'text-black');
-                });
-                document.getElementById('print_zonesTableContainer').innerHTML = ''; // Clear prev
+                zonesTable.querySelectorAll('.text-white').forEach(el => { el.classList.remove('text-white'); el.classList.add('text-black'); });
+                zonesTable.querySelectorAll('thead').forEach(el => { el.classList.remove('bg-gray-900', 'text-white'); el.classList.add('bg-gray-200', 'text-black'); });
+                document.getElementById('print_zonesTableContainer').innerHTML = '';
                 document.getElementById('print_zonesTableContainer').appendChild(zonesTable);
 
-
-                // Efficiency Table
+                // Efficiency
                 const effTable = document.querySelector('#efficiencyResults table').cloneNode(true);
                 effTable.classList.remove('min-w-full');
                 effTable.classList.add('w-full');
                 effTable.querySelector('thead').classList.remove('bg-gray-700');
                 effTable.querySelector('thead').classList.add('bg-gray-200');
                 effTable.querySelectorAll('th').forEach(th => th.classList.remove('text-gray-300'));
-                // Visual bars might be tricky. They are divs. They should print okay if background colors are preserved.
                 document.getElementById('print_efficiencyTableContainer').innerHTML = '';
                 document.getElementById('print_efficiencyTableContainer').appendChild(effTable);
 
+                // 2. Show Modal
+                modal.classList.remove('hidden');
 
-                // 3. Prepare for PDF Generation
-                // Show the element visible on screen (overlay) to ensure html2canvas captures it correctly.
-                const element = document.getElementById('printableReport');
-                element.classList.remove('hidden');
-
-                // Style as a full-page overlay
-                element.style.position = 'absolute';
-                element.style.left = '0';
-                element.style.top = '0';
-                element.style.width = '100%';
-                element.style.zIndex = '9999'; // On top of everything
-
-                // Scroll to top to ensure capture starts from top
-                window.scrollTo(0, 0);
-
-                // 4. Render Charts (Light Mode)
+                // 3. Render Charts (Wait for modal to be visible)
                 await renderPrintCharts();
 
-                // 5. Generate PDF
+            } catch (e) {
+                console.error(e);
+                alert("Error generating preview: " + e.message);
+            } finally {
+                previewBtn.textContent = originalText;
+                previewBtn.disabled = false;
+            }
+        });
+
+        // Download Action
+        downloadBtn.addEventListener('click', async () => {
+            const originalText = downloadBtn.textContent;
+            downloadBtn.textContent = 'Saving...';
+            downloadBtn.disabled = true;
+
+            try {
+                const element = document.getElementById('reportContent'); // Only target the content, not the modal wrapper
                 const opt = {
                     margin: 10,
                     filename: `Report_${document.getElementById('athleteName').value || 'Athlete'}_${new Date().toISOString().split('T')[0]}.pdf`,
@@ -1148,23 +1163,12 @@
                     html2canvas: { scale: 2, useCORS: true },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
-
                 await html2pdf().set(opt).from(element).save();
-
-                // Cleanup
-                element.classList.add('hidden');
-                element.style.position = '';
-                element.style.left = '';
-                element.style.top = '';
-                element.style.width = '';
-                element.style.zIndex = '';
-
             } catch (e) {
-                console.error(e);
-                alert("Error generating PDF: " + e.message);
+                alert("Error saving PDF: " + e.message);
             } finally {
-                btn.textContent = originalText;
-                btn.disabled = false;
+                downloadBtn.textContent = originalText;
+                downloadBtn.disabled = false;
             }
         });
 
