@@ -242,7 +242,8 @@
                     <tr>
                         <th class="p-3 w-1/12 border border-gray-700">Domain</th> <!-- Intensity/Domain -->
                         <th class="p-3 w-1/12 border border-gray-700">Zone</th>
-                        <th class="p-3 w-10/12 border border-gray-700">Descriptor</th>
+                        <th class="p-3 w-6/12 border border-gray-700">Descriptor</th>
+                        <th class="p-3 w-4/12 border border-gray-700">Heart Rate (BPM)</th>
                     </tr>
                 </thead>
                 <tbody class="font-bold text-gray-900">
@@ -252,10 +253,12 @@
                                 class="block transform -rotate-90 whitespace-nowrap">MODERATE</span></td>
                         <td class="bg-lime-500 p-3 border-b border-gray-800/20">T1</td>
                         <td class="bg-lime-500 p-3 border-b border-gray-800/20 text-left pl-8">Light Aerobic</td>
+                        <td id="zone_t1_hr" class="bg-lime-500 p-3 border-b border-gray-800/20">-</td>
                     </tr>
                     <tr>
                         <td class="bg-lime-400 p-3">T2</td>
                         <td class="bg-lime-400 p-3 text-left pl-8">Moderate Aerobic</td>
+                        <td id="zone_t2_hr" class="bg-lime-400 p-3">-</td>
                     </tr>
                     <!-- HEAVY -->
                     <tr>
@@ -263,10 +266,12 @@
                                 class="block transform -rotate-90 whitespace-nowrap">HEAVY</span></td>
                         <td class="bg-yellow-400 p-3 border-b border-gray-800/20">T3</td>
                         <td class="bg-yellow-400 p-3 border-b border-gray-800/20 text-left pl-8">Heavy Aerobic</td>
+                        <td id="zone_t3_hr" class="bg-yellow-400 p-3 border-b border-gray-800/20">-</td>
                     </tr>
                     <tr>
                         <td class="bg-orange-400 p-3">T4</td>
                         <td class="bg-orange-400 p-3 text-left pl-8">Threshold</td>
+                        <td id="zone_t4_hr" class="bg-orange-400 p-3">-</td>
                     </tr>
                     <!-- SEVERE -->
                     <tr>
@@ -275,11 +280,13 @@
                         <td class="bg-orange-600 p-3 text-white border-b border-gray-800/20">T5</td>
                         <td class="bg-orange-600 p-3 text-white border-b border-gray-800/20 text-left pl-8">Maximal
                             Aerobic</td>
+                        <td id="zone_t5_hr" class="bg-orange-600 p-3 text-white border-b border-gray-800/20">-</td>
                     </tr>
                     <tr>
                         <td class="bg-red-600 p-3 text-white">T6</td>
                         <td class="bg-red-600 p-3 text-white text-left pl-8">Speed/Power Endurance (Lactate Tolerance)
                         </td>
+                        <td class="bg-red-600 p-3 text-white">N/A</td>
                     </tr>
                     <!-- EXTREME -->
                     <tr>
@@ -288,11 +295,13 @@
                         <td class="bg-red-800 p-3 text-white border-b border-gray-800/20">T7</td>
                         <td class="bg-red-800 p-3 text-white border-b border-gray-800/20 text-left pl-8">Speed/Power
                             Maintenance (Lactate Production)</td>
+                        <td class="bg-red-800 p-3 text-white border-b border-gray-800/20">N/A</td>
                     </tr>
                     <tr>
                         <td class="bg-rose-950 p-3 text-white">T8</td>
                         <td class="bg-rose-950 p-3 text-white text-left pl-8">Speed/Power Production
                             (Neuro-muscular/Alactic Power)</td>
+                        <td class="bg-rose-950 p-3 text-white">N/A</td>
                     </tr>
                 </tbody>
             </table>
@@ -539,6 +548,10 @@
                 displayResults({ lt1: { hr: lt1Hr.toFixed(0), speed: lt1Speed.toFixed(2), lactate: lt1Lactate.toFixed(2) }, lt2: { hr: lt2Hr.toFixed(0), speed: lt2Point.speed.toFixed(2), lactate: lt2Point.lactate.toFixed(2) } });
                 displayFixedLactatePoints(fixedLactateResultsData);
 
+                // Calculate and display Training Zones
+                const maxHr = parsedData[parsedData.length - 1].hr;
+                displayTrainingZones({ maxHr, lt1Hr, lt2Hr });
+
                 renderLactateChart();
                 renderHrChart();
                 renderSrChart();
@@ -561,6 +574,29 @@
         function perpendicularDistance(p, a, b) { const { x, y } = p, { x: x1, y: y1 } = a, { x: x2, y: y2 } = b; const A = y2 - y1, B = x1 - x2, C = -A * x1 - B * y1; return Math.abs(A * x + B * y + C) / Math.sqrt(A * A + B * B); }
         function displayResults(t) { document.getElementById('lt1_hr').textContent = t.lt1.hr; document.getElementById('lt1_speed').textContent = t.lt1.speed; document.getElementById('lt1_lactate').textContent = t.lt1.lactate; document.getElementById('lt2_hr').textContent = t.lt2.hr; document.getElementById('lt2_speed').textContent = t.lt2.speed; document.getElementById('lt2_lactate').textContent = t.lt2.lactate; }
         function displayFixedLactatePoints(r) { document.getElementById('hr_2mmol').textContent = r[2].hr; document.getElementById('speed_2mmol').textContent = r[2].speed; document.getElementById('hr_4mmol').textContent = r[4].hr; document.getElementById('speed_4mmol').textContent = r[4].speed; document.getElementById('hr_6mmol').textContent = r[6].hr; document.getElementById('speed_6mmol').textContent = r[6].speed; }
+
+        function displayTrainingZones({ maxHr, lt1Hr, lt2Hr }) {
+            const r_max = Math.round(maxHr);
+            const r_lt1 = Math.round(lt1Hr);
+            const r_lt2 = Math.round(lt2Hr);
+            const r_midpoint = Math.round(lt1Hr + (lt2Hr - lt1Hr) / 2);
+
+            // Zone 1: < 70% HR MAX
+            const z1_upper = Math.round(r_max * 0.7);
+            document.getElementById('zone_t1_hr').textContent = `< ${z1_upper}`;
+
+            // Zone 2: 70% HR MAX - LT1
+            document.getElementById('zone_t2_hr').textContent = `${z1_upper} - ${r_lt1}`;
+
+            // Zone 3: LT1 - Midpoint
+            document.getElementById('zone_t3_hr').textContent = `${r_lt1} - ${r_midpoint}`;
+
+            // Zone 4: Midpoint - LT2
+            document.getElementById('zone_t4_hr').textContent = `${r_midpoint} - ${r_lt2}`;
+
+            // Zone 5: > LT2
+            document.getElementById('zone_t5_hr').textContent = `> ${r_lt2}`;
+        }
 
         function displayEfficiency(efficiencyData) {
             const efficiencyBody = document.getElementById('efficiencyBody');
