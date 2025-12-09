@@ -1123,15 +1123,21 @@
 
 
                 // 3. Prepare for PDF Generation
-                // We must show the element so charts can render (Chart.js needs dimensions)
+                // Show the element visible on screen (overlay) to ensure html2canvas captures it correctly.
                 const element = document.getElementById('printableReport');
                 element.classList.remove('hidden');
-                // Use absolute positioning to keep it out of view but renderable
-                element.style.position = 'absolute';
-                element.style.left = '-10000px';
-                element.style.top = '0';
 
-                // 4. Render Charts (Light Mode) - Now that container is "visible"
+                // Style as a full-page overlay
+                element.style.position = 'absolute';
+                element.style.left = '0';
+                element.style.top = '0';
+                element.style.width = '100%';
+                element.style.zIndex = '9999'; // On top of everything
+
+                // Scroll to top to ensure capture starts from top
+                window.scrollTo(0, 0);
+
+                // 4. Render Charts (Light Mode)
                 await renderPrintCharts();
 
                 // 5. Generate PDF
@@ -1139,7 +1145,7 @@
                     margin: 10,
                     filename: `Report_${document.getElementById('athleteName').value || 'Athlete'}_${new Date().toISOString().split('T')[0]}.pdf`,
                     image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2 },
+                    html2canvas: { scale: 2, useCORS: true },
                     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
                 };
 
@@ -1150,6 +1156,8 @@
                 element.style.position = '';
                 element.style.left = '';
                 element.style.top = '';
+                element.style.width = '';
+                element.style.zIndex = '';
 
             } catch (e) {
                 console.error(e);
