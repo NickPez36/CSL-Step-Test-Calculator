@@ -224,37 +224,41 @@ export const Charts = forwardRef<ChartsRef, ChartsProps>(({ result, darkMode = t
                 </div>
             </div>
 
-            <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
-                <h2 className="text-2xl font-semibold mb-4 text-white">Speed vs Stroke Rate</h2>
-                <div className="relative h-[350px]">
-                    <Scatter
-                        ref={srRef}
-                        data={srData as any}
-                        options={getChartOptions('Stroke Rate (spm)', darkMode)}
-                    />
+            {regressions.sr && (
+                <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                    <h2 className="text-2xl font-semibold mb-4 text-white">Speed vs Stroke Rate</h2>
+                    <div className="relative h-[350px]">
+                        <Scatter
+                            ref={srRef}
+                            data={srData as any}
+                            options={getChartOptions('Stroke Rate (spm)', darkMode)}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
 
-            <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
-                <h2 className="text-2xl font-semibold mb-4 text-white">Step Efficiency Chart</h2>
-                <div className="relative h-[350px]">
-                    <Bar
-                        ref={efficiencyRef}
-                        data={efficiencyChartData}
-                        options={{
-                            ...getChartOptions('Efficiency Score', darkMode),
-                            scales: {
-                                ...getChartOptions('Efficiency Score', darkMode).scales,
-                                x: {
-                                    type: 'category',
-                                    title: { display: true, text: 'Speed (m/s)', color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#111827' },
-                                    ticks: { color: darkMode ? 'rgba(255, 255, 255, 0.3)' : '#374151' },
+            {efficiencyData && (
+                <div className="bg-gray-800 p-6 rounded-2xl shadow-lg">
+                    <h2 className="text-2xl font-semibold mb-4 text-white">Step Efficiency Chart</h2>
+                    <div className="relative h-[350px]">
+                        <Bar
+                            ref={efficiencyRef}
+                            data={efficiencyChartData}
+                            options={{
+                                ...getChartOptions('Efficiency Score', darkMode),
+                                scales: {
+                                    ...getChartOptions('Efficiency Score', darkMode).scales,
+                                    x: {
+                                        type: 'category',
+                                        title: { display: true, text: 'Speed (m/s)', color: darkMode ? 'rgba(255, 255, 255, 0.7)' : '#111827' },
+                                        ticks: { color: darkMode ? 'rgba(255, 255, 255, 0.3)' : '#374151' },
+                                    },
                                 },
-                            },
-                        } as ChartOptions<'bar'>}
-                    />
+                            } as ChartOptions<'bar'>}
+                        />
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 });
