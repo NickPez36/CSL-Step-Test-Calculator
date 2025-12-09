@@ -459,8 +459,30 @@
                 <!-- Report Content -->
                 <div id="reportContent">
                     <style>
-                        #printableReport .page-break {
-                            page-break-before: always;
+                        /* A4 dimensions in pixels at 96 DPI is approx 794px x 1123px.
+                           We use a slightly smaller width to ensure margins don't overflow. */
+                        .pdf-page {
+                            width: 100%;
+                            max-width: 760px;
+                            /* Enforce A4-like width with margins */
+                            min-height: 1000px;
+                            /* Ensure full page height */
+                            margin: 0 auto;
+                            padding: 20px;
+                            background: white;
+                            /* Use both modern and legacy page break properties */
+                            page-break-after: always;
+                            break-after: page;
+                            page-break-inside: avoid;
+                            break-inside: avoid;
+                            box-sizing: border-box;
+                            position: relative;
+                        }
+
+                        /* Remove page break from the last page */
+                        .pdf-page:last-child {
+                            page-break-after: avoid;
+                            break-after: avoid;
                         }
 
                         #printableReport h1 {
@@ -487,7 +509,8 @@
 
                         #printableReport p,
                         #printableReport td,
-                        #printableReport th {
+                        #printableReport th,
+                        #printableReport li {
                             font-size: 12px;
                         }
 
@@ -507,13 +530,24 @@
                         #printableReport th {
                             background-color: #f3f4f6;
                             font-weight: 600;
+                            color: #111827;
+                            /* Ensure black text */
                         }
 
                         #printableReport .chart-container {
                             position: relative;
-                            height: 300px;
+                            height: 220px;
+                            /* Reduced height to fit 4 on a page */
                             width: 100%;
-                            margin-bottom: 16px;
+                            margin-bottom: 8px;
+                            background: white;
+                        }
+
+                        /* Ensure canvas elements are visible and properly sized */
+                        #printableReport .chart-container canvas {
+                            width: 100% !important;
+                            height: 100% !important;
+                            display: block;
                         }
 
                         #printableReport .section-box {
@@ -547,10 +581,20 @@
                             font-weight: 500;
                             color: #111827;
                         }
+
+                        /* Grid for charts on page 1 */
+                        #page1 .grid {
+                            display: grid;
+                            gap: 8px;
+                        }
+
+                        #page1 .grid-cols-2 {
+                            grid-template-columns: 1fr 1fr;
+                        }
                     </style>
 
-                    <!-- Page 1: Details, Inputs, Charts -->
-                    <div class="page-1">
+                    <!-- Page 1: Metadata, Session Details, Input Table, 4 Charts -->
+                    <div class="pdf-page" id="page1">
                         <h1 class="text-center mb-6">Canoe Slalom Lactate Threshold Report</h1>
 
                         <!-- Metadata -->
@@ -583,8 +627,8 @@
                         </div>
                     </div>
 
-                    <!-- Page 2: Thresholds, Zones -->
-                    <div class="page-break">
+                    <!-- Page 2: Thresholds, Lactate Points, Training Zones -->
+                    <div class="pdf-page" id="page2">
                         <h2 class="mb-6">Thresholds & Training Zones</h2>
 
                         <!-- Calculated Thresholds -->
@@ -649,8 +693,8 @@
                         <div id="print_zonesTableContainer"></div>
                     </div>
 
-                    <!-- Page 3: Efficiency -->
-                    <div class="page-break">
+                    <!-- Page 3: Step Efficiency Table -->
+                    <div class="pdf-page" id="page3">
                         <h2 class="mb-6">Step Efficiency Analysis</h2>
                         <div id="print_efficiencyTableContainer"></div>
                     </div>
@@ -676,6 +720,12 @@
         let srChart = null;
         let currentTableType = 'hr';
         let lastCalculationData = null;
+
+        // Print chart instances for proper cleanup
+        let printLactateChart = null;
+        let printHrChart = null;
+        let printSrChart = null;
+        let printEfficiencyChart = null;
 
         const tableConfigs = {
             hr: {
@@ -1174,16 +1224,34 @@
             downloadBtn.disabled = true;
 
             try {
-                const element = document.getElementById('reportContent'); // Only target the content, not the modal wrapper
+                const element = document.getElementById('reportContent');
                 const opt = {
-                    margin: 10,
+                    margin: [5, 5, 5, 5], // Small margins: [top, right, bottom, left] in mm
                     filename: `Report_${document.getElementById('athleteName').value || 'Athlete'}_${new Date().toISOString().split('T')[0]}.pdf`,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 2, useCORS: true },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                    image: { type: 'jpeg', quality: 0.95 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        scrollY: 0,
+                        allowTaint: true,
+                        logging: false,
+                        windowWidth: 800,
+                        backgroundColor: '#ffffff',
+                        onclone: function (clonedDoc) {
+                            // Ensure cloned document has proper styles applied
+                            const reportContent = clonedDoc.getElementById('reportContent');
+                            if (reportContent) {
+                                reportContent.style.width = '100%';
+                                reportContent.style.maxWidth = '800px';
+                            }
+                        }
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                    pagebreak: { mode: ['css', 'legacy'], before: '.pdf-page', avoid: ['canvas', 'table'] }
                 };
                 await html2pdf().set(opt).from(element).save();
             } catch (e) {
+                console.error("PDF Export Error:", e);
                 alert("Error saving PDF: " + e.message);
             } finally {
                 downloadBtn.textContent = originalText;
@@ -1196,8 +1264,14 @@
             const { parsedData, regressions, thresholds, efficiencyData } = lastCalculationData;
             const minSpeed = parsedData[0].speed, maxSpeed = parsedData[parsedData.length - 1].speed, speedRange = maxSpeed - minSpeed;
 
+            // Destroy existing print charts to prevent memory leaks and rendering issues
+            if (printLactateChart) { printLactateChart.destroy(); printLactateChart = null; }
+            if (printHrChart) { printHrChart.destroy(); printHrChart = null; }
+            if (printSrChart) { printSrChart.destroy(); printSrChart = null; }
+            if (printEfficiencyChart) { printEfficiencyChart.destroy(); printEfficiencyChart = null; }
+
             // 1. Lactate
-            new Chart(document.getElementById('print_lactateChart').getContext('2d'), {
+            printLactateChart = new Chart(document.getElementById('print_lactateChart').getContext('2d'), {
                 type: 'scatter',
                 data: {
                     datasets: [
@@ -1211,7 +1285,7 @@
             });
 
             // 2. HR
-            new Chart(document.getElementById('print_hrChart').getContext('2d'), {
+            printHrChart = new Chart(document.getElementById('print_hrChart').getContext('2d'), {
                 type: 'scatter',
                 data: {
                     datasets: [
@@ -1230,13 +1304,13 @@
                     { label: 'Curve', data: Array.from({ length: 101 }, (_, i) => minSpeed + i * speedRange / 100).map(s => ({ x: s, y: regressions.sr.predict(s)[1] })), type: 'line', borderColor: 'green', borderWidth: 2, pointRadius: 0 }
                 ];
             }
-            new Chart(document.getElementById('print_srChart').getContext('2d'), {
+            printSrChart = new Chart(document.getElementById('print_srChart').getContext('2d'), {
                 type: 'scatter', data: { datasets: srDatasets }, options: getChartOptionsLight('Stroke Rate (spm)')
             });
 
             // 4. Efficiency
             if (efficiencyData) {
-                new Chart(document.getElementById('print_efficiencyChart').getContext('2d'), {
+                printEfficiencyChart = new Chart(document.getElementById('print_efficiencyChart').getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: parsedData.map(d => d.speed.toFixed(2)),
@@ -1244,13 +1318,22 @@
                     },
                     options: { ...getChartOptionsLight('Efficiency Score'), scales: { x: { ...getChartOptionsLight().scales.x, type: 'category' } } }
                 });
-            } else {
-                // Render empty or placeholder if no data?
-                // Or just leave blank canvas
             }
 
-            // Wait a moment for charts to render
-            await new Promise(r => setTimeout(r, 500));
+            // Force all charts to update and render
+            if (printLactateChart) printLactateChart.update('none');
+            if (printHrChart) printHrChart.update('none');
+            if (printSrChart) printSrChart.update('none');
+            if (printEfficiencyChart) printEfficiencyChart.update('none');
+
+            // Wait for charts to render with requestAnimationFrame to ensure DOM painting
+            await new Promise(resolve => {
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        setTimeout(resolve, 1000);
+                    });
+                });
+            });
         }
 
         function renderLactateChart() {
