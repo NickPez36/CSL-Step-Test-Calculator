@@ -2,6 +2,14 @@ import { Document, Page, Text, View, Image, StyleSheet, pdf } from '@react-pdf/r
 import type { SessionDetails, CalculationResult, StepData, TableType } from '../types';
 import { TABLE_CONFIGS } from '../types';
 
+// Helper function to format seconds to mm:ss.00
+function formatTime(seconds: number | null): string {
+    if (seconds === null || seconds === 0) return '-';
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toFixed(2).padStart(5, '0')}`;
+}
+
 // Create styles
 const styles = StyleSheet.create({
     page: {
@@ -220,6 +228,14 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                         <Text style={styles.metaValue}>{sessionDetails.comments}</Text>
                     </View>
                 )}
+                <View style={styles.metaItem}>
+                    <Text style={styles.metaLabel}>Temperature</Text>
+                    <Text style={styles.metaValue}>{sessionDetails.temperature || '-'}</Text>
+                </View>
+                <View style={styles.metaItem}>
+                    <Text style={styles.metaLabel}>Wind Speed</Text>
+                    <Text style={styles.metaValue}>{sessionDetails.windSpeed || '-'}</Text>
+                </View>
 
                 {/* Input Data Table */}
                 <Text style={styles.sectionTitle}>Step Test Data</Text>
@@ -237,7 +253,7 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                             <Text style={styles.tableCell}>{row.speed || '-'}</Text>
                             <Text style={styles.tableCell}>{row.lactate || '-'}</Text>
                             <Text style={styles.tableCell}>{row.strokeRate || '-'}</Text>
-                            <Text style={styles.tableCell}>{row.time || '-'}</Text>
+                            <Text style={styles.tableCell}>{formatTime(row.time)}</Text>
                         </View>
                     ))}
                 </View>
@@ -346,7 +362,7 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                                 <Text style={[styles.zoneCell, styles.zoneZone]}>T1</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDescriptor]}>Light Aerobic</Text>
                                 <Text style={[styles.zoneCell, styles.zoneHr]}>&lt; {Math.round(r_max * 0.7)}</Text>
-                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>&lt; {s_75max.toFixed(2)}</Text>
+                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>&lt; {s_75max.toFixed(1)}</Text>
                                 <Text style={[styles.zoneCell, styles.zoneVo2]}>50-60</Text>
                                 <Text style={[styles.zoneCell, styles.zoneRpe]}>(1-2) [7-11]</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDuration]}>1-6h</Text>
@@ -355,7 +371,7 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                                 <Text style={[styles.zoneCell, styles.zoneZone]}>T2</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDescriptor]}>Moderate Aerobic</Text>
                                 <Text style={[styles.zoneCell, styles.zoneHr]}>{Math.round(r_max * 0.7)}-{r_lt1}</Text>
-                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>{s_75max.toFixed(2)}-{s_lt1.toFixed(2)}</Text>
+                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>{s_75max.toFixed(1)}-{s_lt1.toFixed(1)}</Text>
                                 <Text style={[styles.zoneCell, styles.zoneVo2]}>60-75</Text>
                                 <Text style={[styles.zoneCell, styles.zoneRpe]}>(2-4) [11-13]</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDuration]}>1-3h</Text>
@@ -380,7 +396,7 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                                 <Text style={[styles.zoneCell, styles.zoneZone]}>T3</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDescriptor]}>Heavy Aerobic</Text>
                                 <Text style={[styles.zoneCell, styles.zoneHr]}>{r_lt1}-{r_hr_midpoint}</Text>
-                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>{s_lt1.toFixed(2)}-{s_midpoint.toFixed(2)}</Text>
+                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>{s_lt1.toFixed(1)}-{s_midpoint.toFixed(1)}</Text>
                                 <Text style={[styles.zoneCell, styles.zoneVo2]}>70-85</Text>
                                 <Text style={[styles.zoneCell, styles.zoneRpe]}>(4-5) [13-15]</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDuration]}>45-90m</Text>
@@ -389,7 +405,7 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                                 <Text style={[styles.zoneCell, styles.zoneZone]}>T4</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDescriptor]}>Threshold</Text>
                                 <Text style={[styles.zoneCell, styles.zoneHr]}>{r_hr_midpoint}-{r_lt2}</Text>
-                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>{s_midpoint.toFixed(2)}-{s_lt2.toFixed(2)}</Text>
+                                <Text style={[styles.zoneCell, styles.zoneSpeed]}>{s_midpoint.toFixed(1)}-{s_lt2.toFixed(1)}</Text>
                                 <Text style={[styles.zoneCell, styles.zoneVo2]}>80-90</Text>
                                 <Text style={[styles.zoneCell, styles.zoneRpe]}>(5-7) [15-17]</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDuration]}>30-60m</Text>
@@ -414,7 +430,7 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                                 <Text style={[styles.zoneCell, styles.zoneZone, { color: '#fff' }]}>T5</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDescriptor, { color: '#fff' }]}>Maximal Aerobic</Text>
                                 <Text style={[styles.zoneCell, styles.zoneHr, { color: '#fff' }]}>&gt; {r_lt2}</Text>
-                                <Text style={[styles.zoneCell, styles.zoneSpeed, { color: '#fff' }]}>&gt; {s_lt2.toFixed(2)}</Text>
+                                <Text style={[styles.zoneCell, styles.zoneSpeed, { color: '#fff' }]}>&gt; {s_lt2.toFixed(1)}</Text>
                                 <Text style={[styles.zoneCell, styles.zoneVo2, { color: '#fff' }]}>90-100</Text>
                                 <Text style={[styles.zoneCell, styles.zoneRpe, { color: '#fff' }]}>(7-10) [17-20]</Text>
                                 <Text style={[styles.zoneCell, styles.zoneDuration, { color: '#fff' }]}>12-30m</Text>

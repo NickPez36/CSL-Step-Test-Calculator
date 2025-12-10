@@ -21,6 +21,8 @@ function App() {
     boatClass: 'K1 Men',
     protocol: '',
     comments: '',
+    temperature: '',
+    windSpeed: '',
   });
 
   // Table state

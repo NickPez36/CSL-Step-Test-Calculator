@@ -100,6 +100,8 @@ export interface SessionDetails {
     boatClass: string;
     protocol: string;
     comments: string;
+    temperature: string;
+    windSpeed: string;
 }
 
 // Table configuration types

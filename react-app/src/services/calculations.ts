@@ -156,7 +156,7 @@ export function calculateThresholds(parsedData: ParsedDataPoint[]): CalculationR
 
         fixedLactateResults[targetLactate] = {
             hr: speedHrRegression.predict(bestSpeed)[1].toFixed(0),
-            speed: bestSpeed.toFixed(2)
+            speed: bestSpeed.toFixed(1)
         };
     });
 
@@ -195,13 +195,13 @@ export function calculateThresholds(parsedData: ParsedDataPoint[]): CalculationR
         displayThresholds: {
             lt1: {
                 hr: lt1Hr.toFixed(0),
-                speed: lt1Speed.toFixed(2),
-                lactate: lt1Lactate.toFixed(2)
+                speed: lt1Speed.toFixed(1),
+                lactate: lt1Lactate.toFixed(1)
             },
             lt2: {
                 hr: lt2Hr.toFixed(0),
-                speed: lt2Point.speed.toFixed(2),
-                lactate: lt2Point.lactate.toFixed(2)
+                speed: lt2Point.speed.toFixed(1),
+                lactate: lt2Point.lactate.toFixed(1)
             }
         },
         fixedLactatePoints: fixedLactateResults,

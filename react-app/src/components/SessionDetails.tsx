@@ -56,6 +56,26 @@ export function SessionDetails({ details, onChange }: Props) {
                         placeholder="e.g. 6x4min Step Test"
                     />
                 </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Temperature</label>
+                    <input
+                        type="text"
+                        value={details.temperature}
+                        onChange={(e) => handleChange('temperature', e.target.value)}
+                        className="w-full bg-gray-700 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-blue-500"
+                        placeholder="e.g. 22°C"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-1">Wind Speed</label>
+                    <input
+                        type="text"
+                        value={details.windSpeed}
+                        onChange={(e) => handleChange('windSpeed', e.target.value)}
+                        className="w-full bg-gray-700 text-white rounded-lg p-2 border border-gray-600 focus:outline-none focus:border-blue-500"
+                        placeholder="e.g. 10 km/h"
+                    />
+                </div>
             </div>
             <div>
                 <label className="block text-sm font-medium text-gray-400 mb-1">Comments</label>
