@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import type { ChartOptions } from 'chart.js';
 import { Scatter, Bar } from 'react-chartjs-2';
+import regression from 'regression';
 import type { CalculationResult } from '../types';
 
 // Register Chart.js components (including controllers for production builds)
@@ -143,6 +144,10 @@ export const Charts = forwardRef<ChartsRef, ChartsProps>(({ result, darkMode = t
     // Generate curve data
     const curvePoints = Array.from({ length: 101 }, (_, i) => minSpeed + (i * speedRange) / 100);
 
+    // Calculate linear HR regression
+    const hrLinearData = parsedData.map(d => [d.speed, d.hr] as [number, number]);
+    const hrLinearRegression = regression.linear(hrLinearData);
+
     // Dark mode lactate chart data (for display)
     const lactateData = {
         datasets: [
@@ -244,10 +249,19 @@ export const Charts = forwardRef<ChartsRef, ChartsProps>(({ result, darkMode = t
                 pointRadius: 6,
             },
             {
-                label: 'HR Curve',
+                label: 'Linear Trend',
+                data: curvePoints.map(s => ({ x: s, y: hrLinearRegression.predict(s)[1] })),
+                type: 'line' as const,
+                borderColor: 'rgba(34, 197, 94, 1)', // Green
+                borderWidth: 2,
+                pointRadius: 0,
+            },
+            {
+                label: 'Polynomial Curve',
                 data: curvePoints.map(s => ({ x: s, y: regressions.hr.predict(s)[1] })),
                 type: 'line' as const,
-                borderColor: 'rgba(248, 113, 113, 1)',
+                borderColor: 'rgba(248, 113, 113, 1)', // Red
+                borderDash: [5, 5],
                 borderWidth: 2,
                 pointRadius: 0,
             },
@@ -265,10 +279,19 @@ export const Charts = forwardRef<ChartsRef, ChartsProps>(({ result, darkMode = t
                 pointRadius: 7,
             },
             {
-                label: 'HR Curve',
+                label: 'Linear Trend',
+                data: curvePoints.map(s => ({ x: s, y: hrLinearRegression.predict(s)[1] })),
+                type: 'line' as const,
+                borderColor: '#16a34a', // Green
+                borderWidth: 3,
+                pointRadius: 0,
+            },
+            {
+                label: 'Polynomial Curve',
                 data: curvePoints.map(s => ({ x: s, y: regressions.hr.predict(s)[1] })),
                 type: 'line' as const,
                 borderColor: '#dc2626', // Red
+                borderDash: [5, 5],
                 borderWidth: 3,
                 pointRadius: 0,
             },

@@ -6,6 +6,7 @@ export interface StepData {
     speed: number;
     lactate: number;
     strokeRate: number | null;
+    time: number | null; // Time in seconds to complete 600m loop
 }
 
 // Parsed/validated data point for calculations
@@ -111,16 +112,16 @@ export interface TableConfig {
 
 export const TABLE_CONFIGS: Record<TableType, TableConfig> = {
     hr: {
-        headers: ['Step', 'HR Planned (BPM)', 'HR Achieved (BPM)', 'Speed (m/s)', 'Lactate (mmol)', 'Stroke Rate (spm)'],
-        classes: ['', '', 'hr', 'speed', 'lactate', 'sr']
+        headers: ['Step', 'HR Planned (BPM)', 'HR Achieved (BPM)', 'Speed (m/s)', 'Lactate (mmol)', 'Stroke Rate (spm)', 'Time (s)'],
+        classes: ['', '', 'hr', 'speed', 'lactate', 'sr', 'time']
     },
     speed: {
-        headers: ['Step', 'Speed Planned (m/s)', 'Speed Achieved (m/s)', 'Heart Rate (BPM)', 'Lactate (mmol)', 'Stroke Rate (spm)'],
-        classes: ['', '', 'speed', 'hr', 'lactate', 'sr']
+        headers: ['Step', 'Speed Planned (m/s)', 'Speed Achieved (m/s)', 'Heart Rate (BPM)', 'Lactate (mmol)', 'Stroke Rate (spm)', 'Time (s)'],
+        classes: ['', '', 'speed', 'hr', 'lactate', 'sr', 'time']
     },
     sr: {
-        headers: ['Step', 'SR Planned (spm)', 'SR Achieved (spm)', 'Speed (m/s)', 'Lactate (mmol)', 'Heart Rate (BPM)'],
-        classes: ['', '', 'sr', 'speed', 'lactate', 'hr']
+        headers: ['Step', 'SR Planned (spm)', 'SR Achieved (spm)', 'Speed (m/s)', 'Lactate (mmol)', 'Heart Rate (BPM)', 'Time (s)'],
+        classes: ['', '', 'sr', 'speed', 'lactate', 'hr', 'time']
     }
 };
 

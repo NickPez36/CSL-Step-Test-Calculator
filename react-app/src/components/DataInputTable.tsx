@@ -26,7 +26,8 @@ export function DataInputTable({ tableType, onTableTypeChange, data, onDataChang
             hrAchieved: 0,
             speed: 0,
             lactate: 0,
-            strokeRate: null
+            strokeRate: null,
+            time: null
         };
         onDataChange([...data, newRow]);
     }, [data, onDataChange]);
@@ -43,7 +44,7 @@ export function DataInputTable({ tableType, onTableTypeChange, data, onDataChang
         const rows = text.split(/\r?\n/).filter(row => row.length > 0);
 
         const newData = [...data];
-        const fieldOrder: (keyof StepData)[] = ['step', 'hrPlanned', 'hrAchieved', 'speed', 'lactate', 'strokeRate'];
+        const fieldOrder: (keyof StepData)[] = ['step', 'hrPlanned', 'hrAchieved', 'speed', 'lactate', 'strokeRate', 'time'];
 
         rows.forEach((rowText, rowIndex) => {
             const cells = rowText.split('\t');
@@ -166,6 +167,17 @@ export function DataInputTable({ tableType, onTableTypeChange, data, onDataChang
                                         onPaste={(e) => handlePaste(e, rowIndex, 5)}
                                         className="w-full p-2 border border-gray-600 rounded-md text-center bg-gray-700 text-gray-100 focus:outline-none focus:border-blue-500"
                                         placeholder={config.headers[5].split(' ')[0]}
+                                    />
+                                </td>
+                                <td className="p-1">
+                                    <input
+                                        type="number"
+                                        step="any"
+                                        value={row.time ?? ''}
+                                        onChange={(e) => handleCellChange(rowIndex, 'time', e.target.value)}
+                                        onPaste={(e) => handlePaste(e, rowIndex, 6)}
+                                        className="w-full p-2 border border-gray-600 rounded-md text-center bg-gray-700 text-gray-100 focus:outline-none focus:border-blue-500"
+                                        placeholder="Time"
                                     />
                                 </td>
                             </tr>

@@ -34,6 +34,7 @@ function App() {
       speed: 0,
       lactate: 0,
       strokeRate: null,
+      time: null,
     }));
   });
 
@@ -58,6 +59,7 @@ function App() {
         speed: 0,
         lactate: 0,
         strokeRate: null,
+        time: null,
       }))
     );
     setResult(null);

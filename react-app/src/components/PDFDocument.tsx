@@ -237,6 +237,7 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                             <Text style={styles.tableCell}>{row.speed || '-'}</Text>
                             <Text style={styles.tableCell}>{row.lactate || '-'}</Text>
                             <Text style={styles.tableCell}>{row.strokeRate || '-'}</Text>
+                            <Text style={styles.tableCell}>{row.time || '-'}</Text>
                         </View>
                     ))}
                 </View>
