@@ -5,36 +5,36 @@ import { TABLE_CONFIGS } from '../types';
 // Create styles
 const styles = StyleSheet.create({
     page: {
-        padding: 30,
+        padding: 25,
         fontFamily: 'Helvetica',
-        fontSize: 10,
+        fontSize: 9,
         backgroundColor: '#ffffff',
     },
     header: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: 'bold',
         textAlign: 'center',
-        marginBottom: 20,
+        marginBottom: 12,
         color: '#111827',
     },
     sectionTitle: {
-        fontSize: 14,
+        fontSize: 12,
         fontWeight: 'bold',
-        marginBottom: 10,
-        marginTop: 15,
+        marginBottom: 6,
+        marginTop: 10,
         color: '#374151',
         borderBottomWidth: 1,
         borderBottomColor: '#e5e7eb',
-        paddingBottom: 4,
+        paddingBottom: 3,
     },
     metaGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginBottom: 15,
+        marginBottom: 8,
     },
     metaItem: {
         width: '50%',
-        marginBottom: 8,
+        marginBottom: 4,
     },
     metaLabel: {
         fontSize: 8,
@@ -43,11 +43,11 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase',
     },
     metaValue: {
-        fontSize: 12,
+        fontSize: 10,
         color: '#111827',
     },
     table: {
-        marginBottom: 15,
+        marginBottom: 8,
     },
     tableRow: {
         flexDirection: 'row',
@@ -93,12 +93,12 @@ const styles = StyleSheet.create({
         color: '#111827',
     },
     chartContainer: {
-        marginBottom: 10,
+        marginBottom: 6,
         alignItems: 'center',
     },
     chartImage: {
-        width: 250,
-        height: 180,
+        width: 220,
+        height: 140,
     },
     chartsGrid: {
         flexDirection: 'row',
@@ -107,12 +107,12 @@ const styles = StyleSheet.create({
     },
     chartWrapper: {
         width: '48%',
-        marginBottom: 10,
+        marginBottom: 5,
     },
     chartTitle: {
-        fontSize: 10,
+        fontSize: 9,
         fontWeight: 'bold',
-        marginBottom: 5,
+        marginBottom: 3,
         color: '#374151',
     },
     zonesTable: {
@@ -457,56 +457,56 @@ const PDFDocument = ({ sessionDetails, result, inputData, tableType, chartImages
                         </View>
                     </View>
                 </View>
-            </Page>
 
-            {/* Page 3: Efficiency Table */}
-            {result.efficiencyData && (
-                <Page size="A4" style={styles.page}>
-                    <Text style={styles.sectionTitle}>Step Efficiency Analysis</Text>
-                    <Text style={{ fontSize: 9, color: '#6b7280', marginBottom: 10 }}>
-                        Calculated as (velocity³) / (stroke rate / 60)
-                    </Text>
+                {/* Step Efficiency Analysis - on same page as Training Zones */}
+                {result.efficiencyData && (
+                    <View style={{ marginTop: 10 }}>
+                        <Text style={styles.sectionTitle}>Step Efficiency Analysis</Text>
+                        <Text style={{ fontSize: 7, color: '#6b7280', marginBottom: 6 }}>
+                            Calculated as (velocity³) / (stroke rate / 60)
+                        </Text>
 
-                    <View style={styles.table}>
-                        <View style={[styles.tableRow, styles.tableHeader]}>
-                            <Text style={[styles.tableCell, { width: 50 }]}>Step</Text>
-                            <Text style={[styles.tableCell, { width: 100 }]}>Efficiency Score</Text>
-                            <Text style={[styles.tableCell, { width: 80 }]}>% Change</Text>
-                            <Text style={[styles.tableCell, { flex: 1 }]}>Comparison to Step 1</Text>
-                        </View>
-                        {result.efficiencyData.map((item) => {
-                            const percentChange = item.percentChange || 0;
-                            const displayChange = percentChange.toFixed(1);
-                            const barWidth = Math.min(100, Math.abs(percentChange) * 3); // Scale for visibility
-                            const barColor = percentChange >= 0 ? '#059669' : '#dc2626';
+                        <View style={styles.table}>
+                            <View style={[styles.tableRow, styles.tableHeader]}>
+                                <Text style={[styles.tableCell, { width: 40 }]}>Step</Text>
+                                <Text style={[styles.tableCell, { width: 80 }]}>Efficiency</Text>
+                                <Text style={[styles.tableCell, { width: 60 }]}>% Change</Text>
+                                <Text style={[styles.tableCell, { flex: 1 }]}>Comparison to Step 1</Text>
+                            </View>
+                            {result.efficiencyData.map((item) => {
+                                const percentChange = item.percentChange || 0;
+                                const displayChange = percentChange.toFixed(1);
+                                const barWidth = Math.min(100, Math.abs(percentChange) * 3);
+                                const barColor = percentChange >= 0 ? '#059669' : '#dc2626';
 
-                            return (
-                                <View key={item.step} style={styles.tableRow}>
-                                    <Text style={[styles.tableCell, { width: 50 }]}>{item.step}</Text>
-                                    <Text style={[styles.tableCell, { width: 100 }]}>{item.efficiency.toFixed(3)}</Text>
-                                    <Text style={[styles.tableCell, { width: 80, color: percentChange > 0 ? '#059669' : percentChange < 0 ? '#dc2626' : '#111827', fontWeight: 'bold' }]}>
-                                        {percentChange >= 0 ? '+' : ''}{displayChange}%
-                                    </Text>
-                                    <View style={[styles.tableCell, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}>
-                                        {item.step === 1 ? (
-                                            <Text style={{ fontSize: 8, color: '#6b7280' }}>Baseline</Text>
-                                        ) : (
-                                            <View style={{ width: '80%', height: 12, backgroundColor: '#e5e7eb', borderRadius: 2, overflow: 'hidden' }}>
-                                                <View style={{
-                                                    width: `${barWidth}%`,
-                                                    height: '100%',
-                                                    backgroundColor: barColor,
-                                                    borderRadius: 2,
-                                                }} />
-                                            </View>
-                                        )}
+                                return (
+                                    <View key={item.step} style={styles.tableRow}>
+                                        <Text style={[styles.tableCell, { width: 40 }]}>{item.step}</Text>
+                                        <Text style={[styles.tableCell, { width: 80 }]}>{item.efficiency.toFixed(3)}</Text>
+                                        <Text style={[styles.tableCell, { width: 60, color: percentChange > 0 ? '#059669' : percentChange < 0 ? '#dc2626' : '#111827', fontWeight: 'bold' }]}>
+                                            {percentChange >= 0 ? '+' : ''}{displayChange}%
+                                        </Text>
+                                        <View style={[styles.tableCell, { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }]}>
+                                            {item.step === 1 ? (
+                                                <Text style={{ fontSize: 7, color: '#6b7280' }}>Baseline</Text>
+                                            ) : (
+                                                <View style={{ width: '80%', height: 8, backgroundColor: '#e5e7eb', borderRadius: 2, overflow: 'hidden' }}>
+                                                    <View style={{
+                                                        width: `${barWidth}%`,
+                                                        height: '100%',
+                                                        backgroundColor: barColor,
+                                                        borderRadius: 2,
+                                                    }} />
+                                                </View>
+                                            )}
+                                        </View>
                                     </View>
-                                </View>
-                            );
-                        })}
+                                );
+                            })}
+                        </View>
                     </View>
-                </Page>
-            )}
+                )}
+            </Page>
         </Document>
     );
 };
