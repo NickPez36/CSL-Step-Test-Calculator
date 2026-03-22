@@ -1,3 +1,13 @@
+# CSL Step Test Calculator (React)
+
+This is the **maintained application**. It includes **Temperature** and **Wind speed** in session details (the up-to-date session model) and uses `@react-pdf/renderer` for PDF export.
+
+The standalone [`../index.html`](../index.html) at the repo root is a **legacy** zero-build snapshot and is not kept in lockstep with this app. See [`../DEVELOPMENT.md`](../DEVELOPMENT.md) for details.
+
+**Run locally:** `npm install` then `npm run dev`.
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
