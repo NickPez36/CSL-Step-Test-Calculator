@@ -81,6 +81,23 @@ When **all** `VITE_FIREBASE_*` variables from the Firebase web app config are se
 
 Code: [`react-app/src/services/firebaseConfig.ts`](react-app/src/services/firebaseConfig.ts), [`react-app/src/services/firestoreSessionStore.ts`](react-app/src/services/firestoreSessionStore.ts).
 
+**Firebase Hosting (static app)**
+
+Deploy the Vite build to [Firebase Hosting](https://firebase.google.com/docs/hosting):
+
+- [`firebase.json`](firebase.json) — serves `react-app/dist`, runs `predeploy` (`npm ci` + `npm run build` in `react-app`), SPA **rewrite** so all routes load `index.html`, and long-lived caching for `/assets/**`.
+- [`.firebaserc`](.firebaserc) — set the default **project id** to your Firebase project (replace the placeholder or run `firebase use --add`).
+- [`react-app/vite.config.ts`](react-app/vite.config.ts) — asset **`base`** defaults to **`/`** (required for Hosting at the site root). The **GitHub Pages** workflow sets `VITE_BASE_PATH=/CSL-Step-Test-Calculator/` so existing Pages URLs keep working.
+
+**Deploy from the repo root**
+
+1. `npm install` (installs `firebase-tools` and other root deps).
+2. `npx firebase login` once on your machine.
+3. Ensure `react-app/.env.production` exists with your `VITE_FIREBASE_*` keys (and leave `VITE_BASE_PATH` unset or `/` for Hosting). This file is gitignored; copy from [`react-app/.env.example`](react-app/.env.example).
+4. `npm run deploy:firebase` — runs `firebase deploy --only hosting` (Hosting’s **predeploy** builds the app).
+
+Firestore **rules** are managed in the Firebase console (or deploy `firestore.rules` with the Firebase CLI if you add them to `firebase.json` later).
+
 **Local API + GitHub Actions**
 
 - A tiny **Express** service in [`server/index.mjs`](server/index.mjs) persists to [`server/data/sessions.json`](server/data/sessions.json) and exposes `GET/POST/DELETE` under `/api/sessions`, plus `POST /api/sessions/merge` for idempotent imports.

@@ -1,6 +1,8 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
+    /** Subpath for GitHub Pages; omit or `/` for Firebase Hosting at domain root */
+    readonly VITE_BASE_PATH?: string;
     readonly VITE_SESSIONS_API_BASE?: string;
     readonly VITE_FIREBASE_API_KEY?: string;
     readonly VITE_FIREBASE_AUTH_DOMAIN?: string;
