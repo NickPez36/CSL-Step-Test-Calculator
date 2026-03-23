@@ -155,7 +155,7 @@ function App() {
           inputData={inputData}
           result={result}
           onLoadSession={handleLoadSavedSession}
-          showToast={(message, variant) => pushToast(message, variant)}
+          showToast={pushToast}
         />
 
         <SessionDetails details={sessionDetails} onChange={setSessionDetails} />

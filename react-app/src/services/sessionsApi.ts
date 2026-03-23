@@ -8,10 +8,25 @@ function apiPrefix(): string {
     return '';
 }
 
+/**
+ * True only if the Express sessions API responds with JSON (not HTML).
+ * Static hosts (e.g. Firebase Hosting) often rewrite unknown paths to index.html with 200 OK,
+ * which would fool a simple res.ok check and break res.json() elsewhere.
+ */
 export async function apiHealthCheck(): Promise<boolean> {
     try {
         const res = await fetch(`${apiPrefix()}/api/health`, { method: 'GET' });
-        return res.ok;
+        if (!res.ok) return false;
+        const text = await res.text();
+        let data: unknown;
+        try {
+            data = JSON.parse(text) as { ok?: unknown; service?: unknown };
+        } catch {
+            return false;
+        }
+        if (typeof data !== 'object' || data === null) return false;
+        const o = data as { ok?: unknown; service?: unknown };
+        return o.ok === true && o.service === 'csl-sessions-api';
     } catch {
         return false;
     }
