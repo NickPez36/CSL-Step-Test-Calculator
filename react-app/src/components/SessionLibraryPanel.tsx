@@ -1,16 +1,15 @@
 import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
 import { parseTableData } from '../services/calculations';
-import { idbImportSessions } from '../services/browserSessionStore';
 import {
     deleteSavedSession,
     detectBackend,
     importDemoSessions,
     invalidateBackendCache,
     listSavedSessions,
+    mergeImportedSessions,
     saveTestSession,
     summaryFromCalculation,
 } from '../services/sessionLibrary';
-import * as api from '../services/sessionsApi';
 import type { CalculationResult, SavedTestSession, SessionDetails as SessionDetailsType, StepData, TableType } from '../types';
 
 interface SessionLibraryPanelProps {
@@ -67,7 +66,7 @@ export function SessionLibraryPanel({
     const [sessions, setSessions] = useState<SavedTestSession[]>([]);
     const [loading, setLoading] = useState(false);
     const [search, setSearch] = useState('');
-    const [backend, setBackend] = useState<'api' | 'browser' | 'checking'>('checking');
+    const [backend, setBackend] = useState<'firestore' | 'api' | 'browser' | 'checking'>('checking');
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
 
@@ -204,12 +203,7 @@ export function SessionLibraryPanel({
             if (!Array.isArray(data.sessions)) {
                 throw new Error('File must contain a top-level { "sessions": [...] } array.');
             }
-            const b = await detectBackend();
-            if (b === 'api') {
-                await api.apiMergeSessions(data.sessions);
-            } else {
-                await idbImportSessions(data.sessions);
-            }
+            await mergeImportedSessions(data.sessions);
             showToast(`Imported ${data.sessions.length} session(s).`, 'success');
             await refresh();
         } catch (e) {
@@ -220,11 +214,13 @@ export function SessionLibraryPanel({
     };
 
     const backendLabel =
-        backend === 'api'
-            ? 'Server library (API)'
-            : backend === 'browser'
-              ? 'Browser library (IndexedDB)'
-              : 'Detecting…';
+        backend === 'firestore'
+            ? 'Cloud library (Firestore)'
+            : backend === 'api'
+              ? 'Server library (API)'
+              : backend === 'browser'
+                ? 'Browser library (IndexedDB)'
+                : 'Detecting…';
 
     return (
         <section className="mb-8 rounded-2xl border border-slate-600/60 bg-gradient-to-br from-slate-900/90 via-slate-900/80 to-slate-950/90 shadow-xl shadow-black/20">

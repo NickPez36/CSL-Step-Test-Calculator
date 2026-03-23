@@ -1,13 +1,22 @@
 import type { CalculationResult, SavedSessionSummary, SavedTestSession, SessionDetails, StepData, TableType } from '../types';
+import { isFirebaseConfigured } from './firebaseConfig';
 import * as idb from './browserSessionStore';
 import * as api from './sessionsApi';
+import * as firestore from './firestoreSessionStore';
 
-export type SessionBackend = 'api' | 'browser';
+export type SessionBackend = 'firestore' | 'api' | 'browser';
 
 let cachedBackend: SessionBackend | null = null;
 
+/**
+ * Priority: Firestore (if VITE_FIREBASE_* set) → sessions API (if reachable) → IndexedDB.
+ */
 export async function detectBackend(): Promise<SessionBackend> {
     if (cachedBackend) return cachedBackend;
+    if (isFirebaseConfigured()) {
+        cachedBackend = 'firestore';
+        return cachedBackend;
+    }
     const ok = await api.apiHealthCheck();
     cachedBackend = ok ? 'api' : 'browser';
     return cachedBackend;
@@ -28,6 +37,9 @@ export function summaryFromCalculation(result: CalculationResult): SavedSessionS
 
 export async function listSavedSessions(): Promise<SavedTestSession[]> {
     const backend = await detectBackend();
+    if (backend === 'firestore') {
+        return firestore.firestoreListSessions();
+    }
     if (backend === 'api') {
         const rows = await api.apiListSessions();
         return [...rows].sort((a, b) => (a.savedAt < b.savedAt ? 1 : -1));
@@ -42,9 +54,6 @@ export async function saveTestSession(payload: {
     summary: SavedSessionSummary | null;
 }): Promise<SavedTestSession> {
     const backend = await detectBackend();
-    if (backend === 'api') {
-        return api.apiCreateSession(payload);
-    }
     const id = crypto.randomUUID();
     const savedAt = new Date().toISOString();
     const session: SavedTestSession = {
@@ -55,12 +64,24 @@ export async function saveTestSession(payload: {
         inputData: payload.inputData,
         summary: payload.summary,
     };
+
+    if (backend === 'firestore') {
+        await firestore.firestoreSaveSession(session);
+        return session;
+    }
+    if (backend === 'api') {
+        return api.apiCreateSession(payload);
+    }
     await idb.idbPutSession(session);
     return session;
 }
 
 export async function deleteSavedSession(id: string): Promise<void> {
     const backend = await detectBackend();
+    if (backend === 'firestore') {
+        await firestore.firestoreDeleteSession(id);
+        return;
+    }
     if (backend === 'api') {
         await api.apiDeleteSession(id);
         return;
@@ -80,10 +101,28 @@ export async function importSessionsIntoBrowser(sessions: SavedTestSession[]): P
     return idb.idbImportSessions(sessions);
 }
 
+/** Merge imported JSON sessions into the active backend. */
+export async function mergeImportedSessions(sessions: SavedTestSession[]): Promise<void> {
+    const backend = await detectBackend();
+    if (backend === 'firestore') {
+        await firestore.firestoreMergeSessions(sessions);
+        return;
+    }
+    if (backend === 'api') {
+        await api.apiMergeSessions(sessions);
+        return;
+    }
+    await idb.idbImportSessions(sessions);
+}
+
 /** Load bundled `demo-sessions.json` into the active backend (merge by session id). */
 export async function importDemoSessions(demoFileUrl: string): Promise<{ count: number }> {
     const sessions = await fetchDemoSessionsFile(demoFileUrl);
     const backend = await detectBackend();
+    if (backend === 'firestore') {
+        await firestore.firestoreMergeSessions(sessions);
+        return { count: sessions.length };
+    }
     if (backend === 'api') {
         await api.apiMergeSessions(sessions);
         return { count: sessions.length };

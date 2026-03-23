@@ -69,6 +69,18 @@ The React app includes a **Test session library** panel ([`SessionLibraryPanel.t
 - **Delete** removes a record (with confirmation). **Search** filters by athlete, date, class, protocol, and notes.
 - **Load sample athletes** merges the bundled reference file [`react-app/public/demo-sessions.json`](react-app/public/demo-sessions.json) (Jordan Blake, Sam Rivers) — works on **GitHub Pages** (IndexedDB) or with the **local API** (see below).
 
+**Firebase Firestore (recommended for staff worldwide)**
+
+When **all** `VITE_FIREBASE_*` variables from the Firebase web app config are set at build time, the library uses **Cloud Firestore** instead of the Express API or IndexedDB. Data is stored in collection **`saved_test_sessions`** (one document per session, document id = session `id`).
+
+1. Create a project in the [Firebase console](https://console.firebase.google.com/), enable **Firestore** (Database).
+2. Register a **Web app** and copy the config object into environment variables in [`react-app/.env.example`](react-app/.env.example) (use `react-app/.env.local` locally for `npm run dev`).
+3. **Security rules** must allow reads and writes for your use case. Start from [`react-app/firestore.rules.example`](react-app/firestore.rules.example) only for private testing; for production, add **Firebase Authentication** and restrict `read`/`write` to signed-in users.
+4. For **GitHub Pages**, add the same `VITE_FIREBASE_*` values as **GitHub Actions repository secrets** (names match the env vars). The workflow [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) injects them into `npm run build` so the live site uses Firestore.
+5. Priority order: **Firestore** (if fully configured) → **sessions API** (if `VITE_SESSIONS_API_BASE` or dev proxy `/api` is reachable) → **IndexedDB**.
+
+Code: [`react-app/src/services/firebaseConfig.ts`](react-app/src/services/firebaseConfig.ts), [`react-app/src/services/firestoreSessionStore.ts`](react-app/src/services/firestoreSessionStore.ts).
+
 **Local API + GitHub Actions**
 
 - A tiny **Express** service in [`server/index.mjs`](server/index.mjs) persists to [`server/data/sessions.json`](server/data/sessions.json) and exposes `GET/POST/DELETE` under `/api/sessions`, plus `POST /api/sessions/merge` for idempotent imports.

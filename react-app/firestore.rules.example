@@ -1,0 +1,14 @@
+// Example Firestore security rules — copy into Firebase Console → Firestore → Rules.
+// Replace with stricter rules (e.g. Firebase Authentication) before production.
+//
+// Collection used by the app: saved_test_sessions
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /saved_test_sessions/{sessionId} {
+      // Development only — anyone can read/write. Do not use for public production data.
+      allow read, write: if true;
+    }
+  }
+}
