@@ -236,11 +236,6 @@ export function SessionLibraryPanel({
                             {backendLabel}
                         </span>
                     </div>
-                    <p className="mt-1 max-w-2xl text-sm text-slate-400">
-                        Save completed step tests, reload prior sessions, and remove records you no longer need. Run{' '}
-                        <code className="rounded bg-slate-800 px-1 py-0.5 text-slate-200">npm run dev:all</code> from
-                        the repository root to enable the local API alongside the web app.
-                    </p>
                 </div>
                 <button
                     type="button"

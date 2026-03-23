@@ -1,19 +1,28 @@
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { randomUUID } from 'crypto';
+import { isGithubBackendConfigured, readStoreFromGithub, writeStoreToGithub } from './githubStore.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DATA_PATH = path.join(__dirname, 'data', 'sessions.json');
 
 async function readStore() {
+    if (isGithubBackendConfigured()) {
+        return readStoreFromGithub();
+    }
     const raw = await fs.readFile(DATA_PATH, 'utf8');
     return JSON.parse(raw);
 }
 
 async function writeStore(data) {
+    if (isGithubBackendConfigured()) {
+        await writeStoreToGithub(data, 'Update sessions.json (CSL Step Test Calculator)');
+        return;
+    }
     await fs.writeFile(DATA_PATH, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
 }
 
@@ -22,7 +31,11 @@ app.use(cors({ origin: true }));
 app.use(express.json({ limit: '2mb' }));
 
 app.get('/api/health', (_req, res) => {
-    res.json({ ok: true, service: 'csl-sessions-api' });
+    res.json({
+        ok: true,
+        service: 'csl-sessions-api',
+        storage: isGithubBackendConfigured() ? 'github' : 'filesystem',
+    });
 });
 
 app.get('/api/sessions', async (_req, res) => {

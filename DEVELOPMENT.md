@@ -75,6 +75,16 @@ The React app includes a **Test session library** panel ([`SessionLibraryPanel.t
 - From the **repository root**: `npm install` then `npm run dev:all` — runs the API on port **8787** and the Vite dev server with **`/api` proxied** to it ([`react-app/vite.config.ts`](react-app/vite.config.ts)).
 - The existing **Deploy React App to GitHub Pages** workflow ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) continues to ship **only the static** `react-app` build; the API is **not** hosted on Pages. Deploy the server separately (e.g. Railway, Fly.io) if you need the API in production, and set `VITE_SESSIONS_API_BASE` for that origin.
 
+**GitHub-backed `server/data/sessions.json` (shared worldwide)**
+
+The API can persist directly to the file in this repository using the [GitHub Contents API](https://docs.github.com/en/rest/repos/contents), so everyone using the **hosted API** reads the same data and commits appear on `main` for `server/data/sessions.json`.
+
+- **Never** put a Personal Access Token (PAT) in the React app, in git, or in client-side code. Anyone could steal it. If a token was pasted into chat, a ticket, or a public repo, **revoke it immediately** in GitHub and create a new one.
+- Configure the token **only** as a server environment variable on the machine that runs [`server/index.mjs`](server/index.mjs) (e.g. `GITHUB_TOKEN`). See [`.env.example`](.env.example) for local development (`GITHUB_OWNER`, `GITHUB_REPO`, optional `GITHUB_BRANCH`, `GITHUB_SESSIONS_PATH`).
+- Use a **fine-grained PAT** limited to this repository with **Contents: Read and write** (or classic `repo` scope for private repos).
+- `GET /api/health` returns `"storage": "github"` when GitHub mode is active, or `"filesystem"` when using the local `server/data/sessions.json` file only.
+- After deploying the API, build the static app with `VITE_SESSIONS_API_BASE` pointing at that API’s public URL so GitHub Pages (or any host) loads/saves through the server, not only IndexedDB.
+
 **CI:** [`.github/workflows/validate-sessions.yml`](.github/workflows/validate-sessions.yml) checks that both seed JSON files parse and contain a `sessions` array.
 
 ## Related files (quick map)
