@@ -60,6 +60,23 @@ Use this when porting or comparing stacks.
 
 ---
 
+## Test session library (save / load)
+
+The React app includes a **Test session library** panel ([`SessionLibraryPanel.tsx`](react-app/src/components/SessionLibraryPanel.tsx)):
+
+- **Save** stores athlete metadata, protocol type, table rows, and (when available) LT summary from the last calculation.
+- **Load** restores a session and **re-runs** threshold calculations.
+- **Delete** removes a record (with confirmation). **Search** filters by athlete, date, class, protocol, and notes.
+- **Load sample athletes** merges the bundled reference file [`react-app/public/demo-sessions.json`](react-app/public/demo-sessions.json) (Jordan Blake, Sam Rivers) — works on **GitHub Pages** (IndexedDB) or with the **local API** (see below).
+
+**Local API + GitHub Actions**
+
+- A tiny **Express** service in [`server/index.mjs`](server/index.mjs) persists to [`server/data/sessions.json`](server/data/sessions.json) and exposes `GET/POST/DELETE` under `/api/sessions`, plus `POST /api/sessions/merge` for idempotent imports.
+- From the **repository root**: `npm install` then `npm run dev:all` — runs the API on port **8787** and the Vite dev server with **`/api` proxied** to it ([`react-app/vite.config.ts`](react-app/vite.config.ts)).
+- The existing **Deploy React App to GitHub Pages** workflow ([`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)) continues to ship **only the static** `react-app` build; the API is **not** hosted on Pages. Deploy the server separately (e.g. Railway, Fly.io) if you need the API in production, and set `VITE_SESSIONS_API_BASE` for that origin.
+
+**CI:** [`.github/workflows/validate-sessions.yml`](.github/workflows/validate-sessions.yml) checks that both seed JSON files parse and contain a `sessions` array.
+
 ## Related files (quick map)
 
 - React app entry: [`react-app/src/main.tsx`](react-app/src/main.tsx), [`react-app/src/App.tsx`](react-app/src/App.tsx)

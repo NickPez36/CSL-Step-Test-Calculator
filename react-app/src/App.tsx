@@ -8,10 +8,19 @@ import {
   EfficiencyTable,
   generatePDF,
   downloadPDF,
+  SessionLibraryPanel,
+  ToastStack,
 } from './components';
+import { useToastStack } from './hooks/useToastStack';
 import type { ChartsRef } from './components';
 import { calculateThresholds, parseTableData } from './services/calculations';
-import type { SessionDetails as SessionDetailsType, StepData, TableType, CalculationResult } from './types';
+import type {
+  SessionDetails as SessionDetailsType,
+  StepData,
+  TableType,
+  CalculationResult,
+  SavedTestSession,
+} from './types';
 
 function App() {
   // Session details state
@@ -49,6 +58,23 @@ function App() {
 
   // Chart ref for getting images
   const chartsRef = useRef<ChartsRef>(null);
+
+  const { toasts, push: pushToast, dismiss: dismissToast } = useToastStack();
+
+  const handleLoadSavedSession = useCallback((session: SavedTestSession) => {
+    setSessionDetails(session.sessionDetails);
+    setTableType(session.tableType);
+    setInputData(session.inputData);
+    setError(null);
+    try {
+      const parsedData = parseTableData(session.inputData, session.tableType);
+      const calcResult = calculateThresholds(parsedData);
+      setResult(calcResult);
+    } catch (e) {
+      setError((e as Error).message);
+      setResult(null);
+    }
+  }, []);
 
   // Handle table type change - reset data
   const handleTableTypeChange = useCallback((type: TableType) => {
@@ -112,6 +138,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
+      <ToastStack toasts={toasts} onDismiss={dismissToast} />
       <div className="container mx-auto p-4 md:p-8 max-w-7xl">
         <header className="text-center mb-8">
           <h1 className="text-3xl md:text-4xl font-bold text-white">
@@ -121,6 +148,15 @@ function App() {
             Analyze step test data to determine LT1 and LT2 thresholds.
           </p>
         </header>
+
+        <SessionLibraryPanel
+          sessionDetails={sessionDetails}
+          tableType={tableType}
+          inputData={inputData}
+          result={result}
+          onLoadSession={handleLoadSavedSession}
+          showToast={(message, variant) => pushToast(message, variant)}
+        />
 
         <SessionDetails details={sessionDetails} onChange={setSessionDetails} />
 

@@ -139,3 +139,26 @@ export const BOAT_CLASSES = [
 ] as const;
 
 export type BoatClass = typeof BOAT_CLASSES[number];
+
+/** Summary line items for library list (optional; refined on save when a calculation exists) */
+export interface SavedSessionSummary {
+    lt1Speed: string;
+    lt2Speed: string;
+    lt1Hr: string;
+    lt2Hr: string;
+}
+
+/** Persisted step-test session (API + IndexedDB + import/export) */
+export interface SavedTestSession {
+    id: string;
+    savedAt: string;
+    sessionDetails: SessionDetails;
+    tableType: TableType;
+    inputData: StepData[];
+    summary: SavedSessionSummary | null;
+}
+
+export interface SessionsStoreFile {
+    version: number;
+    sessions: SavedTestSession[];
+}
