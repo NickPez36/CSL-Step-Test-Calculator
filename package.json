@@ -1,23 +1,14 @@
 {
   "name": "csl-step-test-calculator",
   "private": true,
-  "description": "Monorepo root: React app + optional sessions API for local/cloud-adjacent persistence",
+  "description": "Monorepo root: React app",
   "scripts": {
-    "dev:server": "node server/index.mjs",
     "dev": "npm run dev --prefix react-app",
-    "dev:all": "concurrently -n server,web -c blue,green \"npm run dev:server\" \"npm run dev --prefix react-app\"",
     "build": "npm run build --prefix react-app",
-    "start:server": "node server/index.mjs",
     "deploy:firebase": "firebase deploy --only hosting",
     "firebase:login": "firebase login"
   },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^17.3.1",
-    "express": "^4.21.2"
-  },
   "devDependencies": {
-    "concurrently": "^9.1.2",
     "firebase-tools": "^14.24.0"
   }
 }

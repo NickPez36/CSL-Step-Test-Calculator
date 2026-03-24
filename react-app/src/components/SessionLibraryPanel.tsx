@@ -1,12 +1,11 @@
-import { useCallback, useEffect, useMemo, useState, type ChangeEventHandler } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { parseTableData } from '../services/calculations';
 import {
     deleteSavedSession,
     detectBackend,
-    importDemoSessions,
     invalidateBackendCache,
     listSavedSessions,
-    mergeImportedSessions,
+    runViewerMirrorMigrationIfNeeded,
     saveTestSession,
     summaryFromCalculation,
 } from '../services/sessionLibrary';
@@ -17,8 +16,12 @@ interface SessionLibraryPanelProps {
     tableType: TableType;
     inputData: StepData[];
     result: CalculationResult | null;
+    loadedSessionId: string | null;
+    onClearSessionId: () => void;
     onLoadSession: (session: SavedTestSession) => void;
     showToast: (message: string, variant: 'success' | 'error' | 'info') => void;
+    /** When true, hide save/delete and list de-identified sessions only (Firestore viewer path). */
+    viewerMode?: boolean;
 }
 
 function formatSavedAt(iso: string): string {
@@ -59,8 +62,11 @@ export function SessionLibraryPanel({
     tableType,
     inputData,
     result,
+    loadedSessionId,
+    onClearSessionId,
     onLoadSession,
     showToast,
+    viewerMode = false,
 }: SessionLibraryPanelProps) {
     const [expanded, setExpanded] = useState(true);
     const [sessions, setSessions] = useState<SavedTestSession[]>([]);
@@ -76,6 +82,9 @@ export function SessionLibraryPanel({
             invalidateBackendCache();
             const b = await detectBackend();
             setBackend(b);
+            if (b === 'firestore' && !viewerMode) {
+                await runViewerMirrorMigrationIfNeeded();
+            }
             const rows = await listSavedSessions();
             setSessions(rows);
         } catch (e) {
@@ -83,7 +92,7 @@ export function SessionLibraryPanel({
         } finally {
             setLoading(false);
         }
-    }, [showToast]);
+    }, [showToast, viewerMode]);
 
     useEffect(() => {
         void refresh();
@@ -109,10 +118,8 @@ export function SessionLibraryPanel({
         });
     }, [sessions, search]);
 
-    const base = (import.meta.env.BASE_URL || '/').replace(/\/?$/, '/');
-    const demoUrl = `${base}demo-sessions.json`;
-
-    const handleSaveCurrent = async () => {
+    const handleSave = async (idToSave?: string) => {
+        if (viewerMode) return;
         const v = validateForSave(sessionDetails, inputData, tableType);
         if (!v.ok) {
             showToast(v.message, 'error');
@@ -122,12 +129,13 @@ export function SessionLibraryPanel({
         try {
             const summary = result ? summaryFromCalculation(result) : null;
             await saveTestSession({
+                id: idToSave,
                 sessionDetails,
                 tableType,
                 inputData,
                 summary,
             });
-            showToast('Test session saved to your library.', 'success');
+            showToast(idToSave ? 'Session successfully updated.' : 'Test session saved to your library.', 'success');
             await refresh();
         } catch (e) {
             showToast((e as Error).message, 'error');
@@ -151,7 +159,7 @@ export function SessionLibraryPanel({
     };
 
     const handleConfirmDelete = async () => {
-        if (!deleteId) return;
+        if (viewerMode || !deleteId) return;
         try {
             await deleteSavedSession(deleteId);
             showToast('Session removed from the library.', 'success');
@@ -162,60 +170,11 @@ export function SessionLibraryPanel({
         }
     };
 
-    const handleImportDemo = async () => {
-        setLoading(true);
-        try {
-            const { count } = await importDemoSessions(demoUrl);
-            showToast(`Sample library updated (${count} reference sessions).`, 'success');
-            await refresh();
-        } catch (e) {
-            showToast((e as Error).message, 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleExportJson = async () => {
-        try {
-            const rows = await listSavedSessions();
-            const blob = new Blob([JSON.stringify({ version: 1, sessions: rows }, null, 2)], {
-                type: 'application/json',
-            });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `csl-step-sessions-${new Date().toISOString().slice(0, 10)}.json`;
-            a.click();
-            URL.revokeObjectURL(a.href);
-            showToast('Library exported as JSON.', 'info');
-        } catch (e) {
-            showToast((e as Error).message, 'error');
-        }
-    };
-
-    const handleImportFile: ChangeEventHandler<HTMLInputElement> = async (ev) => {
-        const file = ev.target.files?.[0];
-        ev.target.value = '';
-        if (!file) return;
-        setLoading(true);
-        try {
-            const text = await file.text();
-            const data = JSON.parse(text) as { sessions?: SavedTestSession[] };
-            if (!Array.isArray(data.sessions)) {
-                throw new Error('File must contain a top-level { "sessions": [...] } array.');
-            }
-            await mergeImportedSessions(data.sessions);
-            showToast(`Imported ${data.sessions.length} session(s).`, 'success');
-            await refresh();
-        } catch (e) {
-            showToast((e as Error).message, 'error');
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const backendLabel =
         backend === 'firestore'
-            ? 'Cloud library (Firestore)'
+            ? viewerMode
+                ? 'Cloud library (viewer — de-identified)'
+                : 'Cloud library (Firestore)'
             : backend === 'api'
               ? 'Server library (API)'
               : backend === 'browser'
@@ -259,14 +218,42 @@ export function SessionLibraryPanel({
                             />
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <button
-                                type="button"
-                                onClick={handleSaveCurrent}
-                                disabled={saving}
-                                className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-sky-400/50"
-                            >
-                                {saving ? 'Saving…' : 'Save current test'}
-                            </button>
+                            {!viewerMode && loadedSessionId ? (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSave(loadedSessionId)}
+                                        disabled={saving}
+                                        className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-sky-400/50"
+                                    >
+                                        {saving ? 'Updating…' : 'Update session'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleSave(undefined)}
+                                        disabled={saving}
+                                        className="rounded-lg border border-sky-500/60 bg-slate-800/50 px-4 py-2.5 text-sm font-medium text-sky-300 hover:bg-sky-900/50 disabled:opacity-50"
+                                    >
+                                        {saving ? 'Saving…' : 'Save as new'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={onClearSessionId}
+                                        className="rounded-lg border border-slate-500/60 bg-slate-800/50 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700/50"
+                                    >
+                                        Clear edit mode
+                                    </button>
+                                </>
+                            ) : !viewerMode ? (
+                                <button
+                                    type="button"
+                                    onClick={() => handleSave(undefined)}
+                                    disabled={saving}
+                                    className="rounded-lg bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-sky-400/50"
+                                >
+                                    {saving ? 'Saving…' : 'Save current test'}
+                                </button>
+                            ) : null}
                             <button
                                 type="button"
                                 onClick={() => void refresh()}
@@ -275,25 +262,6 @@ export function SessionLibraryPanel({
                             >
                                 Refresh
                             </button>
-                            <button
-                                type="button"
-                                onClick={handleImportDemo}
-                                disabled={loading}
-                                className="rounded-lg border border-slate-500/60 bg-slate-800/50 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700/50 disabled:opacity-50"
-                            >
-                                Load sample athletes
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => void handleExportJson()}
-                                className="rounded-lg border border-slate-500/60 bg-slate-800/50 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700/50"
-                            >
-                                Export JSON
-                            </button>
-                            <label className="cursor-pointer rounded-lg border border-slate-500/60 bg-slate-800/50 px-4 py-2.5 text-sm font-medium text-slate-200 hover:bg-slate-700/50">
-                                Import JSON
-                                <input type="file" accept="application/json,.json" className="hidden" onChange={handleImportFile} />
-                            </label>
                         </div>
                     </div>
 
@@ -320,9 +288,7 @@ export function SessionLibraryPanel({
                                     ) : filtered.length === 0 ? (
                                         <tr>
                                             <td colSpan={6} className="px-4 py-10 text-center text-slate-500">
-                                                No sessions match your search. Save a test or choose &ldquo;Load sample
-                                                athletes&rdquo; to add the bundled reference sessions (Jordan Blake &amp;
-                                                Sam Rivers).
+                                                No sessions match your search. Save a test to add it to your library.
                                             </td>
                                         </tr>
                                     ) : (
@@ -348,13 +314,15 @@ export function SessionLibraryPanel({
                                                         >
                                                             Load
                                                         </button>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => setDeleteId(s.id)}
-                                                            className="rounded-md border border-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-950/40 focus:outline-none focus:ring-2 focus:ring-red-500/30"
-                                                        >
-                                                            Delete
-                                                        </button>
+                                                        {!viewerMode && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setDeleteId(s.id)}
+                                                                className="rounded-md border border-red-500/30 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-950/40 focus:outline-none focus:ring-2 focus:ring-red-500/30"
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </td>
                                             </tr>

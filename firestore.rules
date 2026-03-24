@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Must match VITE_AUTH_VIEWER_EMAIL and VITE_AUTH_ADMIN_EMAIL exactly (see FIREBASE_SETUP.md).
+    function isViewerEmail() {
+      return request.auth != null
+        && request.auth.token.email == 'viewer@csl-step.local';
+    }
+    function isAdminEmail() {
+      return request.auth != null
+        && request.auth.token.email == 'admin@csl-step.local';
+    }
+
+    match /saved_test_sessions/{sessionId} {
+      allow read, write, delete: if isAdminEmail();
+    }
+
+    match /saved_test_sessions_viewer/{sessionId} {
+      allow read: if isAdminEmail() || isViewerEmail();
+      allow write, delete: if isAdminEmail();
+    }
+
+    match /athlete_registry/{key} {
+      allow read, write, delete: if isAdminEmail();
+    }
+
+    match /meta/{docId} {
+      allow read, write, delete: if isAdminEmail();
+    }
+  }
+}

@@ -10,7 +10,10 @@ import {
   downloadPDF,
   SessionLibraryPanel,
   ToastStack,
+  ComparisonView,
 } from './components';
+import { useAuth } from './auth/useAuth';
+import { isFirebaseConfigured } from './services/firebaseConfig';
 import { useToastStack } from './hooks/useToastStack';
 import type { ChartsRef } from './components';
 import { calculateThresholds, parseTableData } from './services/calculations';
@@ -23,6 +26,9 @@ import type {
 } from './types';
 
 function App() {
+  const { role, signOutApp } = useAuth();
+  const viewerMode = role === 'viewer';
+
   // Session details state
   const [sessionDetails, setSessionDetails] = useState<SessionDetailsType>({
     athleteName: '',
@@ -61,7 +67,12 @@ function App() {
 
   const { toasts, push: pushToast, dismiss: dismissToast } = useToastStack();
 
+  const [loadedSessionId, setLoadedSessionId] = useState<string | null>(null);
+
+  const [activeView, setActiveView] = useState<'calculator' | 'compare'>('calculator');
+
   const handleLoadSavedSession = useCallback((session: SavedTestSession) => {
+    setLoadedSessionId(session.id);
     setSessionDetails(session.sessionDetails);
     setTableType(session.tableType);
     setInputData(session.inputData);
@@ -90,6 +101,7 @@ function App() {
         time: null,
       }))
     );
+    setLoadedSessionId(null);
     setResult(null);
     setError(null);
   }, [inputData.length]);
@@ -141,30 +153,82 @@ function App() {
       <ToastStack toasts={toasts} onDismiss={dismissToast} />
       <div className="container mx-auto p-4 md:p-8 max-w-7xl">
         <header className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-white">
-            Canoe Slalom Lactate Threshold Calculator
-          </h1>
-          <p className="mt-2 text-lg text-gray-400">
-            Analyze step test data to determine LT1 and LT2 thresholds.
-          </p>
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between sm:items-start sm:text-left max-w-4xl mx-auto w-full">
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-white">
+                Canoe Slalom Lactate Threshold Calculator
+              </h1>
+              <p className="mt-2 text-lg text-gray-400">
+                Analyze step test data to determine LT1 and LT2 thresholds.
+              </p>
+              {viewerMode && (
+                <p className="mt-2 text-sm text-sky-400/95">
+                  Signed in as viewer — library and athlete labels are de-identified; editing and saving are disabled.
+                </p>
+              )}
+            </div>
+            {isFirebaseConfigured() && (
+              <button
+                type="button"
+                onClick={() => void signOutApp()}
+                className="shrink-0 rounded-lg border border-slate-500/60 bg-slate-800/80 px-3 py-2 text-sm font-medium text-slate-200 hover:bg-slate-700/60"
+              >
+                Sign out
+              </button>
+            )}
+          </div>
+          <div className="mt-6 flex justify-center">
+            <div className="inline-flex rounded-xl bg-gray-800 p-1 border border-gray-700 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setActiveView('calculator')}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  activeView === 'calculator'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Calculator & report
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView('compare')}
+                className={`px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
+                  activeView === 'compare'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-gray-400 hover:text-white'
+                }`}
+              >
+                Compare sessions
+              </button>
+            </div>
+          </div>
         </header>
 
+        {activeView === 'compare' ? (
+          <ComparisonView showToast={pushToast} />
+        ) : (
+          <>
         <SessionLibraryPanel
           sessionDetails={sessionDetails}
           tableType={tableType}
           inputData={inputData}
           result={result}
+          loadedSessionId={loadedSessionId}
+          onClearSessionId={() => setLoadedSessionId(null)}
           onLoadSession={handleLoadSavedSession}
           showToast={pushToast}
+          viewerMode={viewerMode}
         />
 
-        <SessionDetails details={sessionDetails} onChange={setSessionDetails} />
+        <SessionDetails details={sessionDetails} onChange={setSessionDetails} readOnly={viewerMode} />
 
         <DataInputTable
           tableType={tableType}
           onTableTypeChange={handleTableTypeChange}
           data={inputData}
           onDataChange={setInputData}
+          readOnly={viewerMode}
         />
 
         <div className="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
@@ -198,6 +262,8 @@ function App() {
             <Results thresholds={result.displayThresholds} fixedPoints={result.fixedLactatePoints} />
             <TrainingZones zones={result.trainingZones} />
             {result.efficiencyData && <EfficiencyTable data={result.efficiencyData} />}
+          </>
+        )}
           </>
         )}
       </div>
